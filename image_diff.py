@@ -133,6 +133,7 @@ class ImageDiff(object):
         """
         image = cv2.imread(image_file)
         img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        img = cv2.GaussianBlur(img, (5, 5), 1.0)
         h, w = img.shape
         scale = self.size_scale/w
         img = cv2.resize(img, (0, 0), fx=scale, fy=scale)
