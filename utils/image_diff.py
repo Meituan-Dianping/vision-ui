@@ -1,4 +1,5 @@
 import cv2
+from utils.image_similar import HashSimilar
 
 
 class ImageDiff(object):
@@ -189,3 +190,10 @@ class ImageDiff(object):
             cv2.circle(img_show, (point[0], point[1]), 1, (0, 0, 255), -1)
         cv2.imwrite(image_show, img_show)
         return len(points)
+
+    def get_image_score(self, image1, image2, image_diff_name):
+        score = HashSimilar.get_attention_similar('capture/'+image1, 'capture/'+image2)
+        if score < 1.0:
+            if score > 0.2:
+                self.increment_diff('capture/'+image1, 'capture/'+image2, 'capture/'+image_diff_name)
+        return score

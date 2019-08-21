@@ -1,4 +1,5 @@
-import cv2,numpy
+import cv2
+import numpy
 
 
 class HashSimilar(object):
@@ -64,9 +65,9 @@ class HashSimilar(object):
         return score_list
 
     @staticmethod
-    def get_similar(image1, image2):
+    def get_attention_similar(image1, image2) -> float:
         """
-        calculate image content similar score
+        calculate image content similar
         :param image1: input image A
         :param image2: input image B
         :return: similar score
@@ -90,3 +91,16 @@ class HashSimilar(object):
             return 1.0
         return 0.8
 
+    @staticmethod
+    def get_hash_similar(image1, image2) -> float:
+        """
+        :param image1: input image A
+        :param image2: input image B
+        :return: score of hash calculation
+        """
+        img1 = HashSimilar.get_image('capture/'+image1)
+        img2 = HashSimilar.get_image('capture/'+image2)
+        hash1 = HashSimilar.perception_hash(img1)
+        hash2 = HashSimilar.perception_hash(img2)
+        score = 1 - HashSimilar.hamming_dist(hash1, hash2) * 1.0 / (64 * 64)
+        return score

@@ -50,7 +50,7 @@ There are some advanced parameters in "image_diff.py", you can customize these p
 You can also get the similarity score from the two images using vision diff library.
 
 ```python
-from hash_similar import HashSimilar
+from image_similar import HashSimilar
 
 score = HashSimilar.get_similar("1.png", "2.png")
 ```

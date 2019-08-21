@@ -51,7 +51,7 @@ img.increment_diff("1.png", "2.png", "output_img.png")
 Vision-diff的计算时间是O(ND)的，为了获得更好的性能和效果的平衡，你可以在进行对比之前进行图像结构相似分数计算
 
 ```python
-from hash_similar import HashSimilar
+from image_similar import HashSimilar
 
 score = HashSimilar.get_similar("1.png", "2.png")
 ```
