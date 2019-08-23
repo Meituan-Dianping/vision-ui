@@ -167,13 +167,10 @@ class ImageDiff(object):
         img2 = self.get_image(image2)
         img1_feature, img2_feature = self.get_image_feature(img1, img2)
         line1, line2 = self.get_line_list(self.get_line(img1_feature, img2_feature))
-        line = line1
-        img_show = img2.copy()
-        (h, w) = img1.shape
-        if len(line1) < len(line2):
-            img_show = img1.copy()
-            line = line2
+        line = line1 + line2
         line = self.line_filter(line)
+        img_show = img2.copy() if img2.shape[0] > img1.shape[0] else img1.copy()
+        (h, w) = img_show.shape
         img_show = cv2.cvtColor(img_show, cv2.COLOR_GRAY2BGR)
         points = []
         for y in range(h):
