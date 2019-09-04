@@ -10,6 +10,24 @@
 
 Vision-diff is designed to find out the changes between two versions of the same images, optimized for direct mobile device screenshot.
 
+
+## Container
+Vision provides docker container for service usage.
+
+```bash
+docker run -it -d --name container_vision -p 9092:9092 -v /User/image:/vision/capture brighthai/vision
+```
+
+You can perform a HTTP request on localhost
+```bash
+curl -H "Content-Type:application/json" -X POST --data '{
+  "image1":"1.png",
+  "image2":"2.png",
+  "image_diff_name":"1_2_diff.png"
+}' http://localhost:9092/vision/diff
+```
+
+
 ## Requirements
 
 Python3.5 or higher
@@ -20,9 +38,8 @@ pip install  -r requirements.txt
 
 ## Usage
 
-Vision diff can be used as a Python library.
-
 ### Perform vision diff
+Vision diff can be used as a Python library.
 
 - image_diff() takes three parameters, the first two are the file paths to the images to be compared.
 - The third parameter is the path of the output image.
