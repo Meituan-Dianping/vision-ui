@@ -1,5 +1,6 @@
 # Vision-diff
-
+![GitHub](https://img.shields.io/badge/Python-3.6-blue)
+![GitHub](https://img.shields.io/github/license/Meituan-Dianping/vision-diff)
 > A line-oriented image diff algorithm
 
 **Vision-diff** is an image comparison algorithm just like the [diff utility](https://en.wikipedia.org/wiki/Diff). It is line-oriented rather than pixel-oriented, as a result, it returns a much more clear differences than the traditional pixel based image comparison algorithm (See the below example).
