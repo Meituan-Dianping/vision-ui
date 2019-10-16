@@ -3,6 +3,8 @@
 ![GitHub](https://img.shields.io/github/license/Meituan-Dianping/vision-diff)
 > A line-oriented image diff algorithm
 
+[中文说明](./README-CN.md)
+
 **Vision-diff** is an image comparison algorithm just like the [diff utility](https://en.wikipedia.org/wiki/Diff). It is line-oriented rather than pixel-oriented, as a result, it returns a much more clear differences than the traditional pixel based image comparison algorithm (See the below example).
 
 ![](image/image_4.png)
@@ -11,22 +13,11 @@
 
 Vision-diff is designed to find out the changes between two versions of the same images, optimized for direct mobile device screenshot.
 
-
-## Container
+## Usage
+### Container Service
 Vision provides docker container for service usage.
 
-```bash
-docker run -it -d --name container_vision -p 9092:9092 -v /User/image:/vision/capture brighthai/vision
-```
-
-You can perform a HTTP request on localhost
-```bash
-curl -H "Content-Type:application/json" -X POST --data '{
-  "image1":"1.png",
-  "image2":"2.png",
-  "image_diff_name":"1_2_diff.png"
-}' http://localhost:9092/vision/diff
-```
+[container-service](./container-service.md)
 
 
 ## Requirements
@@ -37,7 +28,6 @@ Python3.5 or higher
 pip install  -r requirements.txt
 ```
 
-## Usage
 
 ### Perform vision diff
 Vision diff can be used as a Python library.

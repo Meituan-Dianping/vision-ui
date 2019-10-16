@@ -1,5 +1,8 @@
 # Vision-diff
 
+![GitHub](https://img.shields.io/badge/Python-3.6-blue)
+![GitHub](https://img.shields.io/github/license/Meituan-Dianping/vision-diff)
+
 > 基于行特征的图像对比算法
 
 **Vision-diff** 是一种可实现类似 [diff utility](https://en.wikipedia.org/wiki/Diff)效果的图像对比算法. 
@@ -11,7 +14,16 @@
 
 Vision-diff 主要的目标是标记两个版本的截图差异,对移动端的使用场景专做了对应优化。
 
-## 配置环境
+
+### 容器服务
+
+Vision diff 推进通过docker部署容器的方式使用服务
+
+[容器服务](./container-service.md)
+
+## 使用方法
+
+### 配置环境
 
 Python3.5 or higher
 
@@ -19,11 +31,7 @@ Python3.5 or higher
 pip install  -r requirements.txt
 ```
 
-## 使用方法
-
-Vision diff 可以调用Python库的方式去使用
-
-### 进行 vision diff
+### 代码调试
 
 - image_diff() 使用3个传入参数，前两个参数是参与对比的两个图像文件的访问路径
 - 第三个参数是对比结果图像的输出路径
