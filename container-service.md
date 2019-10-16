@@ -12,13 +12,13 @@
 
 ### 部署容器
 
-如果本地需要处理的图像文件路径在/User/image，本地使用的服务端口为9092，执行如下命令启动容器
+如果本地需要处理的图像文件在/User/image，根据实际替换为实际路径，本地使用的服务端口为9092，执行如下命令启动容器
 
 ```bash
 docker run -it -d --name container_vision -p 9092:9092 -v /User/image:/vision/capture brighthai/vision
 ```
 
-通过Http请求服务，参与"image1"和"image2"表示参与对比计算的图像文件名，"image_diff_name"表示生产对比图像后的保存路径
+通过Http协议请求服务，参数"image1"和"image2"表示参与对比计算的图像文件名，可以使用已经准备好的调试图像[1.png](image/container_image_1.png)和[2.png](image/container_image_2.png)，参数"image_diff_name"表示生产对比图像后的保存路径
 ```bash
 curl -H "Content-Type:application/json" -X POST --data '{
   "image1":"1.png",
