@@ -1,4 +1,5 @@
-# Vision-diff
+![](image/vision_diff.png)
+
 ![GitHub](https://img.shields.io/badge/Python-3.6-blue)
 ![GitHub](https://img.shields.io/github/license/Meituan-Dianping/vision-diff)
 > A line-oriented image diff algorithm
