@@ -3,7 +3,7 @@ from utils.image_similar import HashSimilar
 
 
 class ImageDiff(object):
-    def __init__(self, w=9, padding=0, w_scale=850, h_scale=0.08, hash_score=0.85, pixel_value=28):
+    def __init__(self, w=9, padding=80, w_scale=850, h_scale=0.08, hash_score=0.85, pixel_value=28):
         self.filter_w = w
         self.padding = padding
         self.size_scale = w_scale
@@ -155,7 +155,7 @@ class ImageDiff(object):
             p = img[y][x]
         return p
 
-    def increment_diff(self, image1, image2, image_show):
+    def increment_diff(self, image1, image2, image_show) -> int:
         """
         calculate increment image diff
         :param image1: input image A
@@ -173,7 +173,7 @@ class ImageDiff(object):
         (h, w) = img_show.shape
         img_show = cv2.cvtColor(img_show, cv2.COLOR_GRAY2BGR)
         points = []
-        for y in range(h):
+        for y in range(int(h*0.95)):
             if y > int(w * self.head_scale):
                 if y in line:
                     for x in range(w-self.padding):
@@ -192,5 +192,7 @@ class ImageDiff(object):
         score = HashSimilar.get_attention_similar('capture/'+image1, 'capture/'+image2)
         if score < 1.0:
             if score > 0.2:
-                self.increment_diff('capture/'+image1, 'capture/'+image2, 'capture/'+image_diff_name)
+                points_size = self.increment_diff('capture/'+image1, 'capture/'+image2, 'capture/'+image_diff_name)
+                if points_size < 50:
+                    score = 1.0
         return score
