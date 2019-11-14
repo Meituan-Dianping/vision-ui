@@ -1,6 +1,7 @@
 FROM python:3.6.5
-RUN git clone https://github.com/Meituan-Dianping/vision-diff.git\
-    && mv vision-diff vision
+COPY ./utils /vision/utils/
+COPY ./requirements.txt /vision/requirements.txt
+COPY ./server.py ./vision/server.py
 WORKDIR /vision
 ARG PIP_MIRROR=https://mirrors.aliyun.com/pypi/simple/
 RUN mkdir capture\
