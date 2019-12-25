@@ -4,6 +4,7 @@ from flask import request
 from utils.image_diff import ImageDiff
 from utils.image_merge import Stitcher
 from utils.image_similar import HashSimilar
+from utils.image_text import get_text_roi
 from flask_cors import CORS
 
 
@@ -35,6 +36,15 @@ def vision_similar():
     data = {
         "code": 0,
         "data": HashSimilar().get_hash_similar(request.json['image1'], request.json['image2'])
+    }
+    return jsonify(data)
+
+
+@app.route('/vision/text', methods=["POST"])
+def vision_text():
+    data = {
+        "code": 0,
+        "data": get_text_roi(request.json['image'])
     }
     return jsonify(data)
 
