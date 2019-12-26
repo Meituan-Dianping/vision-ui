@@ -2,7 +2,7 @@
 
 ## 系统设计
 
-![](image/container_service.png)
+![](../image/container_service.png)
 
 ## 使用说明
 
@@ -18,7 +18,7 @@
 docker run -it -d --name container_vision -p 9092:9092 -v /User/image:/vision/capture brighthai/vision
 ```
 
-通过Http协议请求服务，参数"image1"和"image2"表示参与对比计算的图像文件名，可以使用已经准备好的调试图像[1.png](image/container_image_1.png)和[2.png](image/container_image_2.png)，参数"image_diff_name"表示生产对比图像后的保存路径
+通过Http协议请求服务，参数"image1"和"image2"表示参与对比计算的图像文件名，可以使用已经准备好的调试图像[1.png](../image/container_image_1.png)和[2.png](../image/container_image_2.png)，参数"image_diff_name"表示生产对比图像后的保存路径
 ```bash
 curl -H "Content-Type:application/json" -X POST --data '{
   "image1":"1.png",
