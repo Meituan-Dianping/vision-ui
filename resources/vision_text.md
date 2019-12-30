@@ -23,7 +23,7 @@ docker run -it -d --name container_vision -p 9092:9092 -v /User/image:/vision/ca
 通过Http协议请求服务，参数"image"表示图像文件的路径
 ```bash
 curl -H "Content-Type:application/json" -X POST --data '{
-  "image1":"1.png"
+  "image":"image_1.png"
 }' http://localhost:9092/vision/text
 ```
 服务返回
