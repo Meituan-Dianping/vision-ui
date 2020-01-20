@@ -40,7 +40,7 @@ def get_text_roi(img):
         contour = get_text_contour(img_roi, contour)
         roi = get_roi_image(img_roi, contour)
         roi = cv2.adaptiveThreshold(roi, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 7, 5)
-        roi = operation_morphology(roi, 'open', 2)
+        roi = cv2.cvtColor(roi, cv2.COLOR_GRAY2RGB)
         text = get_image_text(roi).replace(' ', '')
         if len(text) > 0:
             roi_text_list.append({'rect': contour.tolist(), 'pos': get_center_pos(contour), 'text': text})

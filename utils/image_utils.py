@@ -2,6 +2,7 @@ import cv2
 import numpy
 from PIL import Image
 import pytesseract
+from cnocr import CnOcr
 
 
 def merge_rectangle_contours(rectangle_contours):
@@ -24,8 +25,13 @@ def merge_rectangle_contours(rectangle_contours):
     return merged_contours
 
 
-def get_image_text(img):
-    text = pytesseract.image_to_string(Image.fromarray(img), lang="chi_sim")
+def get_image_text(img, engine='cnocr'):
+    if engine == 'cnocr':
+        ocr = CnOcr()
+        res = ocr.ocr(img)
+        text = '\n'.join([''.join(i) for i in res])
+    else:
+        text = pytesseract.image_to_string(Image.fromarray(img), lang="chi_sim")
     return text
 
 
