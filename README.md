@@ -9,7 +9,7 @@
 
 ## Vision diff
 
-* [增量对比vision-diff](resources/vision_diff_en.md)
+* [图像对比vision-diff](resources/vision_diff_en.md)
 * [Docker容器部署服务](resources/container_service.md)
 
 ![](image/image_5.png)
