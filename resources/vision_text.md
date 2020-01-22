@@ -1,16 +1,19 @@
 # Vision text
 
-> 通过图像文本处理App弹窗
+> 基于图像的文本解析
 
 ## 系统设计
 
-![](../image/container_service.png)
+算法分位两部分，定位和识别，文本识别引擎基于[cnocr](https://github.com/breezedeus/cnocr/blob/master/README_cn.md)
+
+![](../image/image_text.png)
+
 
 ## 使用说明
 
 ### 环境要求
 
-[安装Docker](https://yeasy.gitbooks.io/docker_practice/install/mac.html) 
+[安装Docker](https://yeasy.gitbooks.io/docker_practice/install/mac.html)
 
 ### 部署容器
 
