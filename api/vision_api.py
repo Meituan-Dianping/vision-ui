@@ -5,6 +5,7 @@ from utils.image_diff import ImageDiff
 from utils.image_merge import Stitcher
 from utils.image_similar import HashSimilar
 from utils.image_text import get_text_roi
+from utils.image_utils import get_pop_v
 
 vision = Blueprint('vision', __name__, url_prefix='/vision')
 
@@ -33,6 +34,15 @@ def vision_similar():
     data = {
         "code": 0,
         "data": HashSimilar().get_hash_similar(request.json['image1'], request.json['image2'])
+    }
+    return jsonify(data)
+
+
+@vision.route('/pop', methods=["POST"])
+def vision_pop():
+    data = {
+        "code": 0,
+        "data": get_pop_v(request.json['image'])
     }
     return jsonify(data)
 

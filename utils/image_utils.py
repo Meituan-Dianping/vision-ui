@@ -50,6 +50,18 @@ def get_roi_image(img, rectangle_contour):
     return roi_image
 
 
+def get_pop_v(image):
+    """
+    calculate value if a pop window exit
+    :param image: image path
+    :return: mean of v channel
+    """
+    img = cv2.imread('capture/'+image)
+    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    h, s, v = cv2.split(img_hsv)
+    return numpy.mean(v)
+
+
 def get_rectangle_contours(binary):
     _, contours, _ = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     rectangle_contours = []

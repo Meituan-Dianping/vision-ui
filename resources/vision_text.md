@@ -4,7 +4,7 @@
 
 ## 系统设计
 
-算法分位两部分，定位和识别，文本识别引擎基于[cnocr](https://github.com/breezedeus/cnocr/blob/master/README_cn.md)
+算法分为两部分，定位和识别，文本识别引擎基于[cnocr](https://github.com/breezedeus/cnocr/blob/master/README_cn.md)
 
 ![](../image/image_text.png)
 
