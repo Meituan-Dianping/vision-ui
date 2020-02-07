@@ -3,6 +3,7 @@ RUN sed -i "s@http://deb.debian.org@http://mirrors.aliyun.com@g" /etc/apt/source
     && rm -Rf /var/lib/apt/lists/*\
     && apt-get update
 RUN apt-get install tesseract-ocr -y && apt-get install tesseract-ocr-chi-sim -y
+COPY ./api /vision/api/
 COPY ./utils /vision/utils/
 COPY ./requirements.txt /vision/requirements.txt
 COPY ./server.py ./vision/server.py
