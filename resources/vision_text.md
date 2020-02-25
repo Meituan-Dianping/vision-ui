@@ -11,17 +11,11 @@
 
 ## 使用说明
 
-### 环境要求
+### 部署服务
 
-[安装Docker](https://yeasy.gitbooks.io/docker_practice/install/mac.html)
+* [Docker部署服务](container_service.md)
 
-### 部署容器
-
-如果本地需要处理的图像文件在/User/image，根据实际替换为实际路径，本地使用的服务端口为9092，执行如下命令启动容器
-
-```bash
-docker run -it -d --name container_vision -p 9092:9092 -v /User/image:/vision/capture brighthai/vision
-```
+### 请求参数
 
 通过Http协议请求服务，参数"image"表示图像文件的路径
 ```bash
