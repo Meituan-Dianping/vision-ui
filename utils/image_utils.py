@@ -35,7 +35,7 @@ def get_image_text(img, engine='cnocr'):
     return text
 
 
-def contour_area_filter(binary, contours, thresh=1800):
+def contour_area_filter(binary, contours, thresh=1500):
     rectangle_contours =[]
     h, w = binary.shape
     for contour in contours:
