@@ -2,11 +2,12 @@
 
 > 基于图像的文本解析
 
-## 系统设计
 
-算法分为两部分，定位和识别，文本识别引擎基于[cnocr](https://github.com/breezedeus/cnocr/blob/master/README_cn.md)
+文本识别引擎基于[chinese-ocr-lite](https://github.com/ouyanghuiyu/chineseocr_lite)
 
-![](../image/image_text.png)
+<img width="600" src="../image/vision_text_1.png"/>
+
+<img width="600" src="../image/vision_text_2.png"/>
 
 
 ## 使用说明

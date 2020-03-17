@@ -2,7 +2,7 @@
 
 ## 系统设计
 
-![](../image/container_service.png)
+<img width="600" src="../image/container_service.png"/>
 
 ## 使用说明
 

@@ -2,6 +2,7 @@ opencv-python==3.4.5.20
 numpy==1.16.3
 Flask==1.0.2
 Flask-Cors==3.0.7
-pytesseract==0.2.6
 pillow==6.2.0
+torch==1.4.0
+torchvision==0.5.0
 cnocr==1.0.0
