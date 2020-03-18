@@ -51,15 +51,6 @@ def vision_pop():
 def vision_text():
     data = {
         "code": 0,
-        "data": get_text_roi(request.json['image'])
-    }
-    return jsonify(data)
-
-
-@vision.route('/text', methods=["GET"])
-def vision_crnn_text():
-    data = {
-        "code": 0,
-        "data": get_ocr_text(request.args.get('image'))
+        "data": get_ocr_text(request.json['image'])
     }
     return jsonify(data)
