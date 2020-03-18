@@ -134,7 +134,7 @@ class ImageDiff(object):
         """
         image = cv2.imread(image_file)
         img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        img = cv2.GaussianBlur(img, (5, 5), 1.0)
+        img = cv2.GaussianBlur(img, (5, 5), 1.5)
         h, w = img.shape
         scale = self.size_scale/w
         img = cv2.resize(img, (0, 0), fx=scale, fy=scale)
@@ -165,6 +165,7 @@ class ImageDiff(object):
         """
         img1 = self.get_image(image1)
         img2 = self.get_image(image2)
+        score_list = HashSimilar.get_attention(img1, img2)
         img1_feature, img2_feature = self.get_image_feature(img1, img2)
         line1, line2 = self.get_line_list(self.get_line(img1_feature, img2_feature))
         line = line1 + line2
@@ -173,6 +174,13 @@ class ImageDiff(object):
         (h, w) = img_show.shape
         img_show = cv2.cvtColor(img_show, cv2.COLOR_GRAY2BGR)
         points = []
+        line_attention = []
+        for l in line:
+            i = int((len(score_list) * (l - 1) / h))
+            i = 0 if i < 0 else i
+            if score_list[i] < 0.98:
+                line_attention.append(l)
+        line = line_attention
         for y in range(int(h*0.95)):
             if y > int(w * self.head_scale):
                 if y in line:

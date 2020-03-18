@@ -57,5 +57,8 @@ def get_ocr_text(img, scale=0.9):
     img = cv2.imread('capture/' + img)
     h, w, _ = img.shape
     long_size = int(h * scale if h > w else w * scale)
-    results = CrnnOcr().crnn_ocr(img, long_size)
-    return results
+    result = {
+        'roi_text': CrnnOcr().crnn_ocr(img, long_size),
+        'img_shape': img.shape
+    }
+    return result
