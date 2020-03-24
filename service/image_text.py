@@ -1,5 +1,5 @@
 from service.image_utils import *
-from pse_crnn.crnn_ocr import CrnnOcr
+from pse_crnn.crnn_ocr import crnn_ocr
 
 
 def operation_morphology(img, operation_type, k):
@@ -58,7 +58,7 @@ def get_ocr_text(img, scale=0.9):
     h, w, _ = img.shape
     long_size = int(h * scale if h > w else w * scale)
     result = {
-        'roi_text': CrnnOcr().crnn_ocr(img, long_size),
+        'roi_text': crnn_ocr.crnn_ocr(img, long_size),
         'img_shape': img.shape
     }
     return result

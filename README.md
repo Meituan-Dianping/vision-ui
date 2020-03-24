@@ -16,7 +16,7 @@
 
 ## 快速开始
 
-* [Docker部署服务](resources/container_service.md)
+* [启动服务](resources/container_service.md)
 
 
 <img width="600" src="./image/image_6.png"/>

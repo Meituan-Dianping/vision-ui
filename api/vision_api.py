@@ -4,7 +4,7 @@ from flask import Blueprint
 from service.image_diff import ImageDiff
 from service.image_merge import Stitcher
 from service.image_similar import HashSimilar
-from service.image_text import get_text_roi, get_ocr_text
+from service.image_text import get_ocr_text
 from service.image_utils import get_pop_v
 
 vision = Blueprint('vision', __name__, url_prefix='/vision')
