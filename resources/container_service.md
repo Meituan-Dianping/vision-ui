@@ -1,21 +1,21 @@
 
 ## 服务部署
 
-支持本地代码和通过docker容器进行部署
+支持本地代码和通过docker容器两种方式进行部署
 
 ### 1.本地启动服务
 
-#### 环境要求
+#### a.环境要求
 
 python 3.6.5
 
-#### 安装依赖库
+#### b.安装依赖库
 
 ```bash
 pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 ```
 
-#### 启动服务
+#### c.启动服务
 ```bash
 python3 server.py
 ```
@@ -23,20 +23,25 @@ python3 server.py
 
 ### 2.容器启动服务
 
-#### 系统设计
+#### a.系统设计
 
 <img width="600" src="../image/container_service.png"/>
 
-#### 环境要求
+#### b.环境要求
 
 [安装Docker](https://yeasy.gitbooks.io/docker_practice/install/mac.html) 
 
-#### 启动容器服务
+#### c.启动容器
+构建镜像
+```bash
+docker build -t vision-ui .
+
+```
 
 如果本地需要处理的图像文件在/User/image，根据实际替换为实际路径，本地使用的服务端口为9092，执行如下命令启动容器
 
 ```bash
-docker run -it -d --name container_vision -p 9092:9092 -v /User/image:/vision/capture brighthai/vision
+docker run -it -d --name container_vision -p 9092:9092 -v /User/image:/vision/capture vision-ui
 ```
 
 ## 使用说明
