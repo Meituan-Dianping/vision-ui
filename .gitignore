@@ -2,4 +2,4 @@
 .DS_Store
 .idea/
 capture/
-/pse_crnn/psenet/pse/pse.so
+*.so

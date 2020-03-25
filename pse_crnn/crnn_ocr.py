@@ -47,6 +47,3 @@ class CrnnOcr(object):
         preds, boxes_list, rects_re = self._text_handle.predict(img, long_size=pse_long_size)
         result = self._crnn_recognize(np.array(img), rects_re)
         return result
-
-
-crnn_ocr = CrnnOcr()

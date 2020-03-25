@@ -1,6 +1,5 @@
 import cv2
 import numpy
-from cnocr import CnOcr
 
 
 def merge_rectangle_contours(rectangle_contours):
@@ -24,10 +23,7 @@ def merge_rectangle_contours(rectangle_contours):
 
 
 def get_image_text(img, engine='cnocr'):
-    if engine == 'cnocr':
-        ocr = CnOcr()
-        res = ocr.ocr(img)
-        text = '\n'.join([''.join(i) for i in res])
+    text = 'cnocr'
     return text
 
 
