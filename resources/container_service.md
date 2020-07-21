@@ -33,7 +33,9 @@ python3 server.py
 
 #### c.启动容器
 构建镜像
+
 ```bash
+# 本地构建镜像前，如存在工程目录的pse_crnn/psenet/pse/pse.so文件，先删除
 docker build -t vision-ui .
 
 ```
