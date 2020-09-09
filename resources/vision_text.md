@@ -7,7 +7,7 @@
 
 <img width="600" src="../image/vision_text_2.png"/>
 
-文本识别模型基于psenet+crnn的[chinese-ocr-lite](https://github.com/ouyanghuiyu/chineseocr_lite)，对移动端的场景做了部分参数和模型的调整
+文本识别模型基于dbnet+crnn_lstm的[chinese-ocr-lite](https://github.com/ouyanghuiyu/chineseocr_lite)，对移动端的场景做了部分参数和模型的调整
 
 
 ## 使用说明

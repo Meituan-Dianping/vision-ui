@@ -1,7 +1,7 @@
 FROM python:3.6.5
 COPY ./api /vision/api/
 COPY ./service /vision/service/
-COPY ./pse_crnn /vision/pse_crnn
+COPY ./dbnet_crnn_lstm /vision/dbnet_crnn_lstm
 COPY ./requirements.txt /vision/requirements.txt
 COPY ./server.py ./vision/server.py
 ARG PIP_MIRROR=https://mirrors.aliyun.com/pypi/simple/
