@@ -9,4 +9,4 @@ WORKDIR /vision
 RUN mkdir capture\
     && pip install --upgrade pip -i ${PIP_MIRROR}\
     && pip install -r requirements.txt -i ${PIP_MIRROR}
-CMD ["python", "server.py"]
+CMD ["gunicorn", "-w", "2", "-b", "127.0.0.1:9092", "server:app"]
