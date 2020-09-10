@@ -25,7 +25,7 @@ class ImageOcr(object):
             if prediction.strip() != '':
                 results.append({
                     'pos': [pos[0], pos[1]],
-                    'text:': prediction,
+                    'text': prediction,
                     'score': round(float(score), 2)
                 })
         return results
@@ -34,3 +34,7 @@ class ImageOcr(object):
         boxes_list, score_list = self.text_handle.process(np.asarray(img).astype(np.uint8), short_size=short_size)
         result = self.crnn_rect_with_box(np.array(img), boxes_list, score_list)
         return result
+
+
+image_ocr = ImageOcr()
+
