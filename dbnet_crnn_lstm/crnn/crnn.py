@@ -39,7 +39,7 @@ class CRNNHandle:
         transformed_image = np.expand_dims(image, axis=0)
         preds = self.sess.run(["out"], {"input": transformed_image.astype(np.float32)})
         preds = preds[0]
-        length  = preds.shape[0]
+        length = preds.shape[0]
         preds = preds.reshape(length,-1)
         preds = np.argmax(preds, axis=1)
         preds = preds.reshape(-1)

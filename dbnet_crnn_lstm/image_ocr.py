@@ -34,3 +34,7 @@ class ImageOcr(object):
         boxes_list, score_list = self.text_handle.process(np.asarray(img).astype(np.uint8), short_size=short_size)
         result = self.crnn_rect_with_box(np.array(img), boxes_list, score_list)
         return result
+
+
+image_ocr = ImageOcr()
+
