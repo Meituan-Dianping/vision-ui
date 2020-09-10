@@ -25,7 +25,7 @@ class ImageOcr(object):
             if prediction.strip() != '':
                 results.append({
                     'pos': [pos[0], pos[1]],
-                    'text:': prediction,
+                    'text': prediction,
                     'score': round(float(score), 2)
                 })
         return results
