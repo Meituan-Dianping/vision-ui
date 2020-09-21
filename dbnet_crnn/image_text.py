@@ -90,3 +90,6 @@ class ImageText(object):
                     'score': round(float(roi_score), 2)
                 })
         return result
+
+
+image_text = ImageText()
