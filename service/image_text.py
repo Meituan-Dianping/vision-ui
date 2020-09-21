@@ -1,5 +1,5 @@
 from service.image_utils import *
-from dbnet_crnn_lstm.image_ocr import image_ocr
+from dbnet_crnn.image_text import ImageText
 
 
 def operation_morphology(img, operation_type, k):
@@ -56,10 +56,9 @@ def get_text_roi(img):
 def get_image_text(image):
     img = cv2.imread('capture/' + image)
     h, w, _ = img.shape
-    short_size = w
-    short_size = 32 * (short_size // 32)
+    log_size = int(0.9*h)
     result = {
-        'roi_text': image_ocr.get_text(img, short_size),
+        'roi_text': ImageText().get_text(img, log_size),
         'img_shape': img.shape
     }
     return result
