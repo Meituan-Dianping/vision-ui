@@ -7,7 +7,11 @@
 
 <img width="600" src="../image/vision_text_2.png"/>
 
-文本识别模型基于dbnet+crnn_lstm的[chinese-ocr-lite](https://github.com/ouyanghuiyu/chineseocr_lite)，对移动端的场景做了部分参数和模型的调整
+文本的识别定位通过预训练模型dbnet和crnn参考以下工程，对移动端的场景做了部分参数和模型的调整
+
+- [chinese-ocr-lite](https://github.com/ouyanghuiyu/chineseocr_lite)
+
+- [paddle-ocr](https://github.com/PaddlePaddle/PaddleOCR)
 
 
 ## 使用说明
