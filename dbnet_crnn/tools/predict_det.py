@@ -15,7 +15,7 @@ class TextDetector(object):
             self.preprocess_op = DBProcessTest()
             postprocess_params["thresh"] = args['det_db_thresh']
             postprocess_params["box_thresh"] = args['det_db_box_thresh']
-            postprocess_params["max_candidates"] = 1000
+            postprocess_params["max_candidates"] = 3000
             postprocess_params["unclip_ratio"] = args['det_db_unclip_ratio']
             self.postprocess_op = DBPostProcess(postprocess_params)
         else:
