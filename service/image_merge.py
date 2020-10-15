@@ -5,6 +5,7 @@ import cv2
 class Stitcher(object):
     def __init__(self, pictures):
         self.img_list = pictures
+        self.w = 80
 
     @staticmethod
     def add_padding(img, w):
@@ -58,9 +59,9 @@ class Stitcher(object):
         return img
 
     @staticmethod
-    def img_merge(img1, img2, index, merge=True):
-        w = 80
+    def img_merge(img1, img2, index, w, merge=True):
         match = 0.98
+        min_match = 0.92
         img_list = []
         score_list = []
         scale_list = [
@@ -91,7 +92,7 @@ class Stitcher(object):
                 score_list.append(score)
                 if score > match:
                     break
-                if scale == scale_list[-1] and max(score_list) < 0.92:
+                if scale == scale_list[-1] and max(score_list) < min_match:
                     img = Stitcher.stack_image(img1, img2, w, index)
                 else:
                     img = img_list[score_list.index(max(score_list))]
@@ -99,13 +100,15 @@ class Stitcher(object):
             img = Stitcher.stack_image(img1, img2, w, index)
         return img
 
-    def image_merge(self, name, merge=True):
+    def image_merge(self, name, without_padding, merge=True):
         """
         :param name: image path to save after merge
         :param merge: operate image merge
+        :param without_padding: remove padding on the merge image
         :return: image merge name
         """
         img_list = []
+        w = 0 if without_padding else self.w
         for img in self.img_list:
             img_list.append('capture/'+img)
         name = 'capture/'+name
@@ -116,9 +119,9 @@ class Stitcher(object):
             for img in img_list[1:]:
                 index = img_list.index(img)
                 if img_list.index(img) == 1:
-                    img1 = self.img_merge(cv2.imread(img1), cv2.imread(img), index, merge)
+                    img1 = self.img_merge(cv2.imread(img1), cv2.imread(img), index, w, merge)
                 else:
-                    img1 = self.img_merge(img1, cv2.imread(img), index, merge)
+                    img1 = self.img_merge(img1, cv2.imread(img), index, w, merge)
             img_merge = img1
             cv2.imwrite(name, img_merge)
         return name

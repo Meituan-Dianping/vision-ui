@@ -25,7 +25,10 @@ def vision_diff():
 def vision_merge():
     data = {
         "code": 0,
-        "data": Stitcher(request.json['image_list']).image_merge(request.json['name'])
+        "data": Stitcher(request.json['image_list']).image_merge(
+            request.json['name'],
+            without_padding=request.json.get('without_padding')
+        )
     }
     return jsonify(data)
 
