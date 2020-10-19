@@ -56,7 +56,6 @@ curl -H "Content-Type:application/json" -X POST --data '{
   "image1":"1.png",
   "image2":"2.png",
   "image_diff_name":"1_2_diff.png"
-  "without_padding":True //可选参数，如果不传表示融合图展示连接点
 }' http://localhost:9092/vision/diff
 ```
 服务返回

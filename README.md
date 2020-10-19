@@ -7,9 +7,9 @@
 
 ## 目录
 
-* [图像对比算法](resources/vision_diff_en.md)
+* [视觉对比](resources/vision_diff_en.md)
 
-* [图像文本识别](resources/vision_text.md)
+* [文本识别](resources/vision_text.md)
 
 * [活动弹窗识别](https://github.com/Meituan-Dianping/vision)
 
