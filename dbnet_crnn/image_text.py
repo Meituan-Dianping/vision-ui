@@ -30,8 +30,8 @@ def sorted_boxes(dt_boxes):
 class ImageText(object):
     def __init__(self):
         args = utility.parse_args()
-        self.text_detector = predict_det.TextDetector(args, model_path='dbnet_crnn/model/det/')
-        self.text_recognizer = predict_rec.TextRecognizer(args, model_path='dbnet_crnn/model/rec/')
+        self.text_detector = predict_det.TextDetector(args, model_path='dbnet_crnn/modelv1.1/det/')
+        self.text_recognizer = predict_rec.TextRecognizer(args, model_path='dbnet_crnn/modelv1.1/rec/')
 
     def get_rotate_crop_image(self, img, points):
         '''
