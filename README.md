@@ -2,6 +2,7 @@
 
 ![GitHub](https://img.shields.io/badge/Python-3.6-blue)
 ![GitHub](https://img.shields.io/github/license/Meituan-Dianping/vision-diff)
+![GitHub](https://img.shields.io/docker/cloud/build/brighthai/vision-ui)
 
 ## 什么是Vision UI
 

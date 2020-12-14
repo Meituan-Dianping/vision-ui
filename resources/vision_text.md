@@ -22,7 +22,8 @@
 
 > 通过Http协议请求，参数"image"表示图像文件在"capture"下的路径
 ```bash
-curl -H "Content-Type:application/json" -X POST --data '{"image":"image_1.png"}' http://localhost:9092/vision/text
+curl -H "Content-Type:application/json" -X POST 
+--data '{"image":"image_1.png"}' http://localhost:9092/vision/text
 ```
 服务返回
 ```bash
