@@ -2,7 +2,7 @@
 
 > A line-oriented image diff algorithm
 
-[中文说明](vision_diff_cn.md)
+[中文](vision_diff_cn.md)
 
 **Vision-diff** is an image comparison algorithm just like the [diff utility](https://en.wikipedia.org/wiki/Diff). It is line-oriented rather than pixel-oriented, as a result, it returns a much more clear differences than the traditional pixel based image comparison algorithm (See the below example).
 
@@ -16,7 +16,7 @@ Vision-diff is designed to find out the changes between two versions of the same
 ### Container Service
 Vision provides docker container for service usage.
 
-[container service](container_service.md)
+[container service](launch_service.md)
 
 
 ## Requirements
@@ -91,12 +91,3 @@ Vision diff compares two images with handling this, as the algorithm will show t
 - With vision diff, the two images are compared as if they were text files. The result is much more helpful so we can only focus on the real differences.
 
 ![](../image/image_5.png)
-
-
-## Performance
-
-The processing time is around 2-6s on corei7@2.2GHz. Higher similarity score takes less time.
-
-## Reference
-
-The path calculation of Vision-diff refers to [this paper](http://www.xmailserver.org/diff2.pdf).
