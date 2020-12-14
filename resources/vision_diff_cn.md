@@ -7,7 +7,7 @@
 
 ### 启动服务
 
-[启动服务](../launch_service.md)
+[启动服务](launch_service.md)
 
 
 ### 使用说明

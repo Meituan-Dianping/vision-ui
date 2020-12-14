@@ -5,8 +5,6 @@
 
 <img width="600" src="../image/vision_text_1.png"/>
 
-<img width="600" src="../image/vision_text_2.png"/>
-
 文本的识别定位通过预训练模型dbnet和crnn参考以下工程，对移动端的场景做了部分参数和模型的调整
 
 - [chinese-ocr-lite](https://github.com/ouyanghuiyu/chineseocr_lite)
