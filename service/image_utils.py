@@ -22,11 +22,6 @@ def merge_rectangle_contours(rectangle_contours):
     return merged_contours
 
 
-def get_image_text(img, engine='cnocr'):
-    text = 'cnocr'
-    return text
-
-
 def contour_area_filter(binary, contours, thresh=1500):
     rectangle_contours =[]
     h, w = binary.shape
