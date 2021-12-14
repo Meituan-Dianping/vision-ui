@@ -6,8 +6,9 @@
 
 ## 什么是Vision UI
 
-Vision是一组图像处理算法，为移动端UI测试提供基于图像的处理能力，如视觉对比(增量式对比)、图像融合和文本识别。本项目无需训练模型，可以直接部署运行。
-基于训练模型的项目在[Vision-ml](https://github.com/Meituan-Dianping/vision)
+Vision UI是一组图像处理算法，来源于美团视觉测试工具，提供如视觉对比(增量式对比)、图像融合和文本识别。
+
+本项目无需训练模型，基于训练模型的项目在[Vision-ml](https://github.com/Meituan-Dianping/vision)
 
 ## 特性
 
