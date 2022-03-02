@@ -1,0 +1,5 @@
+*.pyc
+.DS_Store
+.idea/
+capture/local_*/
+*.so
