@@ -16,7 +16,7 @@
 可转为[TensorRT](https://github.com/onnx/onnx-tensorrt) 用GPU进一步加速推理
 
 ### 使用说明
-1.下载预训练的UI目标检测模型[ui-det](https://github.com/Meituan-Dianping/vision-ui/releases/download/v0.2/ui_det_v1.onnx) 到指定的目录，
+1.下载预训练的UI目标检测模型[ui-det-v1](https://github.com/Meituan-Dianping/vision-ui/releases/download/v0.2/ui_det_v1.onnx) 到指定的目录，
 修改vision-ui/services/image_infer.py文件中调试代码部分，替换model_path。
 
 2.运行调试代码，结果文件保存在指定的infer_result_path目录
