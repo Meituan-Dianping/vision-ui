@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import onnxruntime
 import time
+from config import IMAGE_INFER_MODEL_PATH
 from service.image_utils import yolox_preprocess, yolox_postprocess, multiclass_nms, img_show
 
 
@@ -44,14 +45,13 @@ if __name__ == '__main__':
     """
     调试代码
     """
-    image_path = "../capture/local_images/01.png"
-    model_path = "../capture/local_models/ui_det_v1.onnx"
-    infer_result_path = "../capture/local_images"
+    image_path = "./capture/local_images/2.png"
+    infer_result_path = "./capture/local_images"
     assert os.path.exists(image_path)
-    assert os.path.exists(model_path)
+    assert os.path.exists(IMAGE_INFER_MODEL_PATH)
     if not os.path.exists(infer_result_path):
         os.mkdir(infer_result_path)
-    image_infer = ImageInfer(model_path)
+    image_infer = ImageInfer(IMAGE_INFER_MODEL_PATH)
     t1 = time.time()
     dets = image_infer.ui_infer(image_path)
     print(f"Infer time: {round(time.time()-t1, 3)}s")
