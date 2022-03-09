@@ -1,5 +1,8 @@
+import os
 import cv2
 import numpy
+import requests
+from config import IMAGE_TEMP_DIR
 
 
 def merge_rectangle_contours(rectangle_contours):
@@ -235,3 +238,21 @@ def img_show(img, boxes, scores, cls_ids, conf=0.5, class_names=None):
         cv2.putText(img, text, (x0, y0 + txt_size[1]), font, 0.4, txt_color, thickness=1)
 
     return img
+
+
+def download_image(img_url, image_name):
+    success = True
+    message = 'ok'
+    if not os.path.exists(IMAGE_TEMP_DIR):
+        os.makedirs(IMAGE_TEMP_DIR)
+    image_path = os.path.join(IMAGE_TEMP_DIR, image_name)
+    r = requests.get(img_url, stream=True)
+    if r.status_code == 200:
+        with open(image_path, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=32):
+                f.write(chunk)
+    else:
+        success = False
+        image_path = ''
+        message = f'download image fail, image url reponse code: {r.status_code}'
+    return success, image_path, message

@@ -41,6 +41,28 @@ class ImageInfer(object):
         cv2.imwrite(infer_result_path, origin_img)
 
 
+image_infer = ImageInfer(IMAGE_INFER_MODEL_PATH)
+
+
+def get_ui_infer(image_path):
+    dets = image_infer.ui_infer(image_path)
+    boxes, scores, cls_inds = dets[:, :4], dets[:, 4], dets[:, 5]
+    data = []
+    for i in range(len(boxes)):
+        box = boxes[i]
+        box = box.tolist() if isinstance(box, (np.ndarray,)) else box
+        type = image_infer.UI_CLASSES[int(cls_inds[i])]
+        score = scores[i]
+        data.append(
+            {
+                "elem_det_type": "image" if type == 'pic' else type,
+                "elem_det_region": box,
+                "probability": score
+            }
+        )
+    return data
+
+
 if __name__ == '__main__':
     """
     调试代码
@@ -51,7 +73,6 @@ if __name__ == '__main__':
     assert os.path.exists(IMAGE_INFER_MODEL_PATH)
     if not os.path.exists(infer_result_path):
         os.mkdir(infer_result_path)
-    image_infer = ImageInfer(IMAGE_INFER_MODEL_PATH)
     t1 = time.time()
     dets = image_infer.ui_infer(image_path)
     print(f"Infer time: {round(time.time()-t1, 3)}s")
