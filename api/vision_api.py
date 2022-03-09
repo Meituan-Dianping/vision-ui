@@ -1,12 +1,16 @@
+import hashlib
+import os
 from flask import jsonify
 from flask import request
 from flask import Blueprint
 from flask import make_response
 from service.image_diff import ImageDiff
+from service.image_infer import get_ui_infer
 from service.image_merge import Stitcher
 from service.image_similar import HashSimilar
 from service.image_text import get_image_text
-from service.image_utils import get_pop_v
+from service.image_utils import download_image, get_pop_v
+
 
 vision = Blueprint('vision', __name__, url_prefix='/vision')
 
@@ -58,5 +62,32 @@ def vision_text():
         "data": get_image_text(request.json['image'])
     }
     resp = make_response(jsonify(data))
+    resp.headers["Content-Type"] = "application/json;charset=utf-8"
+    return resp
+
+
+@vision.route('/ui-infer', methods=["POST"])
+def vision_infer():
+    code = 0
+    data = None
+    img_url = request.json['url']
+    image_name = f'{hashlib.md5(img_url.encode(encoding="utf-8")).hexdigest()}.{img_url.split(".")[-1]}'
+    success, image_path, message = download_image(img_url, image_name)
+    if success:
+        try:
+            data = get_ui_infer(image_path)
+        except Exception as e:
+            code = 5
+            data = f'ui infer error, e: {e}'
+        finally:
+            os.remove(image_path)
+    else:
+        code = 4
+        data = message
+    result = {
+        "code": code,
+        "data": data
+    }
+    resp = make_response(jsonify(result))
     resp.headers["Content-Type"] = "application/json;charset=utf-8"
     return resp
