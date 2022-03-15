@@ -1,9 +1,9 @@
 Flask
 Flask-Cors
 opencv-python==4.2.0.32
-numpy==1.19.1
-pillow==7.1.0
-paddlepaddle==1.8.5
+numpy==1.21.0
+pillow==9.0.1
+paddlepaddle==2.2.2
 gunicorn==20.0.4
 onnxruntime==1.10.0
 pyclipper==1.2.0
