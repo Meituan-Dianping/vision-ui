@@ -1,62 +1,26 @@
 import cv2
 from service.image_similar import HashSimilar
+from service.image_utils import get_hash_score, m_diff
+
+
+class LineFeatureEqual(object):
+    def __init__(self):
+        self.thresh = 0.85
+
+    def equal(self, a, b):
+        if get_hash_score(a, b) > self.thresh:
+            return True
+        else:
+            return False
 
 
 class ImageDiff(object):
-    def __init__(self, w=9, padding=80, w_scale=850, h_scale=0.08, hash_score=0.85, pixel_value=28):
+    def __init__(self, w=9, padding=80, w_scale=850, h_scale=0.08, pixel_value=28):
         self.filter_w = w
         self.padding = padding
         self.size_scale = w_scale
         self.head_scale = h_scale
-        self.hash_score = hash_score
         self.pixel_value = pixel_value
-
-    def get_line(self, e, f, i=0, j=0):
-        """
-        calculate a path from e to f
-        :param e: feature input A
-        :param f: feature input B
-        :return: operation list of path from e to f
-        """
-        N, M, L, Z = len(e), len(f), len(e)+len(f), 2*min(len(e), len(f))+2
-        if N > 0 and M > 0:
-            w, g, p = N-M, [0]*Z, [0]*Z
-            for h in range(0, (L//2+(L % 2 != 0))+1):
-                for r in range(0, 2):
-                    c, d, o, m = (g, p, 1, 1) if r == 0 else (p, g, 0, -1)
-                    for k in range(-(h-2*max(0, h-M)), h-2*max(0, h-N)+1, 2):
-                        a = c[(k+1) % Z] if (k == -h or k != h and c[(k-1) % Z] < c[(k+1) % Z]) else c[(k-1) % Z]+1
-                        b = a-k
-                        s, t = a, b
-                        while a < N and b < M and self.get_hash_score(e[(1-o)*N+m*a+(o-1)], f[(1-o)*M+m*b+(o-1)]) > self.hash_score:
-                            a, b = a+1, b+1
-                        c[k % Z], z = a, -(k-w)
-                        if L % 2 == o and -(h-o) <= z <= h-o and c[k % Z]+d[z % Z] >= N:
-                            D, x, y, u, v = (2*h-1, s, t, a, b) if o == 1 else (2*h, N-a, M-b, N-s, M-t)
-                            if D > 1 or (x != u and y != v):
-                                return self.get_line(e[0:x], f[0:y], i, j) + self.get_line(e[u:N], f[v:M], i + u, j + v)
-                            elif M > N:
-                                return self.get_line([], f[N:M], i + N, j + N)
-                            elif M < N:
-                                return self.get_line(e[M:N], [], i + M, j + M)
-                            else:
-                                return []
-        elif N > 0:
-            return [{"operation": "delete", "position_old": i+n} for n in range(0, N)]
-        else:
-            return [{"operation": "insert", "position_old": i, "position_new": j+n} for n in range(0, M)]
-
-    @staticmethod
-    def get_hash_score(hash1, hash2, precision=8):
-        """
-        calculate similar score with line A and line B
-        :param hash1: input line A with hash code
-        :param hash2: input line B with hash code
-        :return: similar score in 0-1.0
-        """
-        assert len(hash1) == len(hash2)
-        score = 1 - sum([ch1 != ch2 for ch1, ch2 in zip(hash1, hash2)]) * 1.0 / (precision * precision)
-        return score
 
     @staticmethod
     def get_line_list(op_list):
@@ -167,7 +131,7 @@ class ImageDiff(object):
         img2 = self.get_image(image2)
         score_list = HashSimilar.get_attention(img1, img2)
         img1_feature, img2_feature = self.get_image_feature(img1, img2)
-        line1, line2 = self.get_line_list(self.get_line(img1_feature, img2_feature))
+        line1, line2 = self.get_line_list(m_diff(img1_feature, img2_feature, equal_obj=LineFeatureEqual()))
         line = line1 + line2
         line = self.line_filter(line)
         img_show = img2.copy() if img2.shape[0] > img1.shape[0] else img1.copy()
