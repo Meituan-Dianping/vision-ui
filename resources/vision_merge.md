@@ -13,10 +13,7 @@
 通过HTTP请求服务，参数image_list表示图片在"vision-ui/capture"路径下的相对路径，name表示融合后图像的存放路径
 
 ```bash
-curl -H "Content-Type:application/json" -X POST --data '{
-  "image_list":["0_1.png","0_2.png","0_3.png"],
-  "name":"image_merge.png",
-}' http://localhost:9092/vision/merge
+curl -H "Content-Type:application/json" -X POST --data '{"image_list":["0_1.png","0_2.png","0_3.png"],"name":"image_merge.png","without_padding":false}' http://localhost:9092/vision/merge
 ```
 服务返回
 ```bash
