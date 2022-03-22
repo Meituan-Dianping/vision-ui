@@ -1,3 +1,4 @@
+import base64
 import os
 import cv2
 import numpy
@@ -256,6 +257,24 @@ def download_image(img_url, image_name):
         image_path = ''
         message = f'download image fail, image url reponse code: {r.status_code}'
     return success, image_path, message
+
+
+def save_base64_image(base64_image, image_name):
+    success = True
+    message = 'ok'
+    if not os.path.exists(IMAGE_TEMP_DIR):
+        os.makedirs(IMAGE_TEMP_DIR)
+    try:
+        image_path = os.path.join(IMAGE_TEMP_DIR, image_name)
+        img_str = base64.b64decode(base64_image)
+        img_np_arr = numpy.fromstring(img_str, numpy.uint8)
+        image = cv2.imdecode(img_np_arr, cv2.IMREAD_COLOR)
+        cv2.imwrite(image_path, image)
+    except Exception as e:
+        success = False
+        image_path = ''
+        message = f'save image fail, error: {e}'
+    return success, image_path, messag
 
 
 def get_hash_score(hash1, hash2, precision=8):
