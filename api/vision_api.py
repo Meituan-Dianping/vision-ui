@@ -69,7 +69,6 @@ def vision_text():
 @vision.route('/ui-infer', methods=["POST"])
 def vision_infer():
     code = 0
-    data = None
     image_type = request.json.get('type', 'url')
     if image_type == 'url':
         img_url = request.json['url']
@@ -82,7 +81,6 @@ def vision_infer():
     else:
         success = False
         message = f'ui infer not support this type: {image_type}'
-    
     if success:
         try:
             data = get_ui_infer(image_path)

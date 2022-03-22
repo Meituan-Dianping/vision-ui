@@ -274,7 +274,7 @@ def save_base64_image(base64_image, image_name):
         success = False
         image_path = ''
         message = f'save image fail, error: {e}'
-    return success, image_path, messag
+    return success, image_path, message
 
 
 def get_hash_score(hash1, hash2, precision=8):
