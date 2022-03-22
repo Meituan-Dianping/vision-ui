@@ -258,6 +258,7 @@ def download_image(img_url, image_name):
         message = f'download image fail, image url reponse code: {r.status_code}'
     return success, image_path, message
 
+
 def save_base64_image(base64_image, image_name):
     success = True
     message = 'ok'
@@ -274,3 +275,45 @@ def save_base64_image(base64_image, image_name):
         image_path = ''
         message = f'save image fail, error: {e}'
     return success, image_path, message
+
+
+def get_hash_score(hash1, hash2, precision=8):
+    """
+    calculate similar score with line A and line B
+    :param hash1: input line A with hash code
+    :param hash2: input line B with hash code
+    :return: similar score in 0-1.0
+    """
+    assert len(hash1) == len(hash2)
+    score = 1 - sum([ch1 != ch2 for ch1, ch2 in zip(hash1, hash2)]) * 1.0 / (precision * precision)
+    return score
+
+
+def m_diff(e, f, i=0, j=0, equal_obj=object()):
+    N, M, L, Z = len(e), len(f), len(e) + len(f), 2 * min(len(e), len(f)) + 2
+    if N > 0 and M > 0:
+        w, g, p = N - M, [0] * Z, [0] * Z
+        for h in range(0, (L // 2 + (L % 2 != 0)) + 1):
+            for r in range(0, 2):
+                c, d, o, m = (g, p, 1, 1) if r == 0 else (p, g, 0, -1)
+                for k in range(-(h - 2 * max(0, h - M)), h - 2 * max(0, h - N) + 1, 2):
+                    a = c[(k + 1) % Z] if (k == -h or k != h and c[(k - 1) % Z] < c[(k + 1) % Z]) else c[(k - 1) % Z] + 1
+                    b = a - k
+                    s, t = a, b
+                    while a < N and b < M and equal_obj.equal(e[(1 - o) * N + m * a + (o - 1)], f[(1 - o) * M + m * b + (o - 1)]):
+                        a, b = a + 1, b + 1
+                    c[k % Z], z = a, -(k - w)
+                    if L % 2 == o and -(h - o) <= z <= h - o and c[k % Z] + d[z % Z] >= N:
+                        D, x, y, u, v = (2 * h - 1, s, t, a, b) if o == 1 else (2 * h, N - a, M - b, N - s, M - t)
+                        if D > 1 or (x != u and y != v):
+                            return m_diff(e[0:x], f[0:y], i, j, equal_obj) + m_diff(e[u:N], f[v:M], i + u, j + v, equal_obj)
+                        elif M > N:
+                            return m_diff([], f[N:M], i + N, j + N, equal_obj)
+                        elif M < N:
+                            return m_diff(e[M:N], [], i + M, j + M, equal_obj)
+                        else:
+                            return []
+    elif N > 0:
+        return [{"operation": "delete", "position_old": i + n} for n in range(0, N)]
+    else:
+        return [{"operation": "insert", "position_old": i, "position_new": j + n} for n in range(0, M)]

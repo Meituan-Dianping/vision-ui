@@ -15,11 +15,7 @@
 
 > 通过Http协议请求服务，所有图像在"vision-ui/capture"路径下，参数"image1"和"image2"表示参与对比计算的图像文件名，可以使用已经准备好的调试图像[1.png](../image/container_image_1.png)和[2.png](../image/container_image_2.png)，参数"image_diff_name"表示生产对比图像后的保存路径
 ```bash
-curl -H "Content-Type:application/json" -X POST --data '{
-  "image1":"1.png",
-  "image2":"2.png",
-  "image_diff_name":"1_2_diff.png"
-}' http://localhost:9092/vision/diff
+curl -H "Content-Type:application/json" -X POST --data '{"image1":"1.png","image2":"2.png","image_diff_name":"1_2_diff.png"}' http://localhost:9092/vision/diff
 ```
 服务返回
 ```bash
