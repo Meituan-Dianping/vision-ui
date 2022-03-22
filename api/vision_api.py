@@ -9,7 +9,7 @@ from service.image_infer import get_ui_infer
 from service.image_merge import Stitcher
 from service.image_similar import HashSimilar
 from service.image_text import get_image_text
-from service.image_utils import download_image, get_pop_v
+from service.image_utils import download_image, get_pop_v, save_base64_image
 
 
 vision = Blueprint('vision', __name__, url_prefix='/vision')
@@ -70,9 +70,19 @@ def vision_text():
 def vision_infer():
     code = 0
     data = None
-    img_url = request.json['url']
-    image_name = f'{hashlib.md5(img_url.encode(encoding="utf-8")).hexdigest()}.{img_url.split(".")[-1]}'
-    success, image_path, message = download_image(img_url, image_name)
+    image_type = request.json.get('type', 'url')
+    if image_type == 'url':
+        img_url = request.json['url']
+        image_name = f'{hashlib.md5(img_url.encode(encoding="utf-8")).hexdigest()}.{img_url.split(".")[-1]}'
+        success, image_path, message = download_image(img_url, image_name)
+    elif image_type == 'base64':
+        base64_image = request.json['image']
+        image_name = f'{hashlib.md5(base64_image.encode(encoding="utf-8")).hexdigest()}.png'
+        success, image_path, message = save_base64_image(base64_image, image_name)
+    else:
+        success = False
+        message = f'ui infer not support this type: {image_type}'
+    
     if success:
         try:
             data = get_ui_infer(image_path)
