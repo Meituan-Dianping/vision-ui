@@ -242,8 +242,6 @@ def img_show(img, boxes, scores, cls_ids, conf=0.5, class_names=None):
 
 
 def download_image(img_url, image_name):
-    success = True
-    message = 'ok'
     if not os.path.exists(IMAGE_TEMP_DIR):
         os.makedirs(IMAGE_TEMP_DIR)
     image_path = os.path.join(IMAGE_TEMP_DIR, image_name)
@@ -253,28 +251,19 @@ def download_image(img_url, image_name):
             for chunk in r.iter_content(chunk_size=32):
                 f.write(chunk)
     else:
-        success = False
-        image_path = ''
-        message = f'download image fail, image url reponse code: {r.status_code}'
-    return success, image_path, message
+        raise Exception(f'Download image fail, image url reponse code: {r.status_code}')
+    return image_path
 
 
 def save_base64_image(base64_image, image_name):
-    success = True
-    message = 'ok'
     if not os.path.exists(IMAGE_TEMP_DIR):
         os.makedirs(IMAGE_TEMP_DIR)
-    try:
-        image_path = os.path.join(IMAGE_TEMP_DIR, image_name)
-        img_str = base64.b64decode(base64_image)
-        img_np_arr = numpy.fromstring(img_str, numpy.uint8)
-        image = cv2.imdecode(img_np_arr, cv2.IMREAD_COLOR)
-        cv2.imwrite(image_path, image)
-    except Exception as e:
-        success = False
-        image_path = ''
-        message = f'save image fail, error: {e}'
-    return success, image_path, message
+    image_path = os.path.join(IMAGE_TEMP_DIR, image_name)
+    img_str = base64.b64decode(base64_image)
+    img_np_arr = numpy.fromstring(img_str, numpy.uint8)
+    image = cv2.imdecode(img_np_arr, cv2.IMREAD_COLOR)
+    cv2.imwrite(image_path, image)
+    return image_path
 
 
 def get_hash_score(hash1, hash2, precision=8):

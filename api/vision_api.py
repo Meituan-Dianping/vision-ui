@@ -73,25 +73,19 @@ def vision_infer():
     if image_type == 'url':
         img_url = request.json['url']
         image_name = f'{hashlib.md5(img_url.encode(encoding="utf-8")).hexdigest()}.{img_url.split(".")[-1]}'
-        success, image_path, message = download_image(img_url, image_name)
+        image_path = download_image(img_url, image_name)
     elif image_type == 'base64':
         base64_image = request.json['image']
         image_name = f'{hashlib.md5(base64_image.encode(encoding="utf-8")).hexdigest()}.png'
-        success, image_path, message = save_base64_image(base64_image, image_name)
+        image_path = save_base64_image(base64_image, image_name)
     else:
-        success = False
-        message = f'ui infer not support this type: {image_type}'
-    if success:
-        try:
-            data = get_ui_infer(image_path)
-        except Exception as e:
-            code = 5
-            data = f'ui infer error, e: {e}'
-        finally:
-            os.remove(image_path)
-    else:
-        code = 4
-        data = message
+        raise Exception(f'UI infer API don`t support this type: {image_type}')
+
+    try:
+        data = get_ui_infer(image_path)
+    finally:
+        os.remove(image_path)
+
     result = {
         "code": code,
         "data": data
