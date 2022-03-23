@@ -45,21 +45,22 @@ image_infer = ImageInfer(IMAGE_INFER_MODEL_PATH)
 
 
 def get_ui_infer(image_path):
-    dets = image_infer.ui_infer(image_path)
-    boxes, scores, cls_inds = dets[:, :4], dets[:, 4], dets[:, 5]
     data = []
-    for i in range(len(boxes)):
-        box = boxes[i]
-        box = box.tolist() if isinstance(box, (np.ndarray,)) else box
-        type = image_infer.UI_CLASSES[int(cls_inds[i])]
-        score = scores[i]
-        data.append(
-            {
-                "elem_det_type": "image" if type == 'pic' else type,
-                "elem_det_region": box,
-                "probability": score
-            }
-        )
+    dets = image_infer.ui_infer(image_path)
+    if isinstance(dets, np.ndarray):
+        boxes, scores, cls_inds = dets[:, :4], dets[:, 4], dets[:, 5]
+        for i in range(len(boxes)):
+            box = boxes[i]
+            box = box.tolist() if isinstance(box, (np.ndarray,)) else box
+            elem_type = image_infer.UI_CLASSES[int(cls_inds[i])]
+            score = scores[i]
+            data.append(
+                {
+                    "elem_det_type": "image" if elem_type == 'pic' else elem_type,
+                    "elem_det_region": box,
+                    "probability": score
+                }
+            )
     return data
 
 
