@@ -33,14 +33,12 @@ pip3 install -r requirements.txt
 
 * 预训练模型-[UI目标检测](resources/vision_infer.md)
 
+* 视觉语义-[目标追踪](resources/vision_trace.md)
+
 * 集成模型-[文本识别](resources/vision_text.md)
 
 
 ## 效果展示
-### 图像融合
-| 1.png                           | 2.png                           |  3.png                   | merge                                  |
-| ------------------------------ | -------------------------------- | -------------------------------- | ------------------------------------- |
-| ![](image/1_0.png)          | ![](image/1_1.png)                  | ![](image/1_2.png)        | ![](image/1_merge.png)                 
 
 
 ### UI目标检测
@@ -54,7 +52,8 @@ pip3 install -r requirements.txt
 | ------------------------------ | -------------------------------- | ------------------------------------- |
 | ![](image/base_1.png)          | ![](image/comp_1.png)            | ![](image/diff_1.png)                 |
 
-
+### 其他
+[效果展示](resources/vision_show.md)
 
 
 ## License

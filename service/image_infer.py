@@ -45,6 +45,9 @@ image_infer = ImageInfer(IMAGE_INFER_MODEL_PATH)
 
 
 def get_ui_infer(image_path):
+    """
+    elem_det_region x1,y1,x2,y2
+    """
     data = []
     dets = image_infer.ui_infer(image_path)
     if isinstance(dets, np.ndarray):
@@ -68,7 +71,7 @@ if __name__ == '__main__':
     """
     调试代码
     """
-    image_path = "./capture/local_images/2.png"
+    image_path = "./capture/image_1.png"
     infer_result_path = "./capture/local_images"
     assert os.path.exists(image_path)
     assert os.path.exists(IMAGE_INFER_MODEL_PATH)
