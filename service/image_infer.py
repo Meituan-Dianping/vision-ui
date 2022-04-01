@@ -14,7 +14,10 @@ class ImageInfer(object):
         self.cls_thresh = 0.5
         self.nms_thresh = 0.2
         self.model_path = model_path
-        self.model_session = onnxruntime.InferenceSession(self.model_path)
+        so = onnxruntime.SessionOptions()
+        # 配置intra_op_num_threads为CPU核数时最佳
+        so.intra_op_num_threads = 4
+        self.model_session = onnxruntime.InferenceSession(self.model_path, sess_options=so)
 
     def ui_infer(self, image_path):
         origin_img = cv2.imread(image_path)
