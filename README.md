@@ -10,19 +10,13 @@ Vision UI 源于美团视觉测试工具，提供基于图像的UI处理和分�
 
 本项目无需训练模型，[Vision-ml](https://github.com/Meituan-Dianping/vision) 项目提供RCNN训练框架
 
-<details>
-<summary>环境配置</summary>
+环境配置
 
 ```shell
 git clone git@github.com:Meituan-Dianping/vision-ui.git --depth=1
 cd vision-ui
 pip3 install -r requirements.txt
 ```
-
-</details>
-
-
-
 
 
 ## 特性

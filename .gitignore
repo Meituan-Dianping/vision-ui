@@ -1,5 +1,7 @@
 *.pyc
 .DS_Store
 .idea/
+venv/
+v_env/
 capture/local_*/
 *.so
