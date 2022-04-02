@@ -1,4 +1,5 @@
 import cv2
+import os
 import torch
 import clip
 import numpy as np
@@ -17,16 +18,17 @@ class ImageTrace(object):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"Using {self.device}.")
         print("Downloading model will take a while for the first time.")
+        self.template_target_image = np.zeros([100, 100, 3], dtype=np.uint8)+100
         self.model, self.preprocess = clip.load("ViT-B/32", device=self.device)
 
-    def search_image(self, target_image_info: dict, source_image_path: str):
-        top_k = 3  # 最大匹配数量
-        text_alpha = 0.5  # 文本语义scale
+    def search_image(self, target_image_info: dict, source_image_path, top_k, image_alpha, text_alpha):
+        top_k = top_k  # 最大匹配数量
+        image_alpha = image_alpha   # 图相关系数
+        text_alpha = text_alpha  # 文本相关系数
         roi_list = []
         img_text_score = []
-        target_image_path = target_image_info.get('path', '')
+        target_image = target_image_info.get('img', self.template_target_image)
         target_image_desc = target_image_info.get('desc', '')
-        target_image = cv2.imread(target_image_path)
         source_image = cv2.imread(source_image_path)
         image_infer_result = get_ui_infer(source_image_path)
         text = clip.tokenize([target_image_desc]).to(self.device)
@@ -48,24 +50,72 @@ class ImageTrace(object):
         # 图像加文本
         for i, source_image_feature in enumerate(source_image_features):
             score = cosine_similar(target_image_features[0], source_image_feature)
-            img_text_score.append(score + probs[0][i]*text_alpha)
+            img_text_score.append(score*image_alpha + probs[0][i]*text_alpha)
         score_norm = (img_text_score - np.min(img_text_score)) / (np.max(img_text_score) - np.min(img_text_score))
         top_k_ids = np.argsort(score_norm)[-top_k:]
         return top_k_ids, score_norm, image_infer_result
 
+    def get_trace_result(self, target_image_info, source_image_path, top_k=3, image_alpha=1.0, text_alpha=0.6):
+        top_k_ids, scores, infer_result = self.search_image(target_image_info, source_image_path,
+                                                            top_k, image_alpha, text_alpha)
+        cls_ids = np.zeros(len(top_k_ids), dtype=int)
+        boxes = [infer_result[i]['elem_det_region'] for i in top_k_ids]
+        scores = [float(scores[i]) for i in top_k_ids]
+        image_show = img_show(cv2.imread(source_image_path), boxes, scores, cls_ids, conf=0.6, class_names=['T'])
+        return image_show
 
-if __name__ == '__main__':
+    def video_target_track(self, video_path, target_image_info, work_path):
+        video_cap = cv2.VideoCapture(video_path)
+        _, im = video_cap.read()
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        im_save_path = os.path.join(work_path, 'im_temp.png')
+        video_out_path = os.path.join(work_path, 'video_out.mp4')
+        out = cv2.VideoWriter(video_out_path, fourcc, 20, (im.shape[1], im.shape[0]))
+        i = 0
+        while 1:
+            i = i + 1
+            if i % 2 == 0:
+                continue
+            print(f"video parsing {i}")
+            ret, im = video_cap.read()
+            if ret:
+                cv2.imwrite(im_save_path, im)
+                trace_result = self.get_trace_result(target_image_info, im_save_path, top_k=1)
+                out.write(trace_result)
+            else:
+                print("finish.")
+                out.release()
+                break
+
+
+def search_target_image():
+    # search a target image
+    image_alpha = 1.0
+    text_alpha = 0.6
     target_image_info = {
         'path': "./capture/local_images/search_icon.png",
         'desc': "shape of magnifier with blue background"
     }
-    source_image_path = "./capture/image_1.png"
-    image_trace = ImageTrace()
-    top_k_ids, scores, infer_result = image_trace.search_image(target_image_info, source_image_path)
-    # show result
+    source_image_path = "./capture/local_images/05.png"
     trace_result_path = "./capture/local_images/trace_result.png"
-    cls_ids = np.zeros(len(top_k_ids), dtype=int)
-    boxes = [infer_result[i]['elem_det_region'] for i in top_k_ids]
-    scores = [float(scores[i]) for i in top_k_ids]
-    image_trace_show = img_show(cv2.imread(source_image_path), boxes, scores, cls_ids, conf=0.5, class_names=['T'])
+    target_image_info['img'] = cv2.imread(target_image_info['path'])
+    image_trace = ImageTrace()
+    image_trace_show = image_trace.get_trace_result(target_image_info, source_image_path,
+                                                    image_alpha=image_alpha, text_alpha=text_alpha)
     cv2.imwrite(trace_result_path, image_trace_show)
+
+
+def trace_target_video():
+    target_image_info = {
+        'path': "./capture/local_images/img_play_icon.png",
+        'desc': "picture with play button"
+    }
+    target_image_info['img'] = cv2.imread(target_image_info['path'])
+    video_path = "./capture/local_images/video.mp4"
+    work_path = './capture/local_images'
+    image_trace = ImageTrace()
+    image_trace.video_target_track(video_path, target_image_info, work_path)
+
+
+if __name__ == '__main__':
+    search_target_image()
