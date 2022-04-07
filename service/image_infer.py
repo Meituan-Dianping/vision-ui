@@ -1,4 +1,5 @@
 import os.path
+import re
 import cv2
 import numpy as np
 import onnxruntime
@@ -34,6 +35,12 @@ class ImageInfer(object):
         boxes_xyxy[:, 3] = boxes[:, 1] + boxes[:, 3] / 2.
         boxes_xyxy /= ratio
         dets = multiclass_nms(boxes_xyxy, scores, nms_thr=self.nms_thresh, score_thr=self.cls_thresh)
+        # 兼容不同版本模型返回结果中UI classes index起始位置
+        offset = 0
+        match_obj = re.match(r'.*o(\d+)\.onnx$', self.model_path)
+        if match_obj:
+            offset = int(match_obj.group(1))
+        dets[:, 5] += offset
         return dets
 
     def show_infer(self, dets, origin_img, infer_result_path):
