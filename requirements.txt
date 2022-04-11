@@ -1,5 +1,6 @@
 Flask
 Flask-Cors
+scipy
 opencv-python==4.2.0.32
 numpy==1.21.0
 pillow==9.0.1

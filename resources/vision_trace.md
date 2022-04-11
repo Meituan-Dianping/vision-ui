@@ -5,7 +5,7 @@
 ![](../image/image_trace.png)
 
 ### 简介
-基于ui-infer和[CLIP](https://github.com/openai/CLIP) 具有鲁棒性的目标查找和追踪
+一种鲁棒性的UI目标查找和追踪
 
 ### 本地调试
 
