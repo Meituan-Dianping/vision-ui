@@ -84,10 +84,12 @@ class ImageText(object):
         for roi_ocr in list(zip(dt_boxes, rec_res)):
             roi_score = roi_ocr[1][1]
             if roi_score > score_thresh:
+                boxes = roi_ocr[0]
                 result.append({
                     'pos': get_center_pos(roi_ocr[0]),
                     'text': roi_ocr[1][0],
-                    'score': round(float(roi_score), 2)
+                    'score': round(float(roi_score), 2),
+                    'elem_det_region': [boxes[0][0], boxes[0][1], boxes[2][0], boxes[2][1]]
                 })
         return result
 

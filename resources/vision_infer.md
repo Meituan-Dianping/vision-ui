@@ -17,8 +17,13 @@
 
 ### 使用说明
 
-1.下载预训练的UI目标检测模型[ui-det-v2](https://github.com/Meituan-Dianping/vision-ui/releases/download/v0.2/ui_det_v2.onnx) 到指定的目录，
-修改vision-ui/config.py文件，替换IMAGE_INFER_MODEL_PATH。
+1.下载预训练的UI目标检测模型到指定的目录，修改vision-ui/config.py文件，替换IMAGE_INFER_MODEL_PATH。
+
+|                                                      模型                                                      | 参数量 |   说明    |
+|:------------------------------------------------------------------------------------------------------------:|:---:|:-------:| 
+|       [ui_det_v2](https://github.com/Meituan-Dianping/vision-ui/releases/download/v0.2/ui_det_v2.onnx)       | 9M  | 宽范围UI元素 | 
+| [ui_det_v2.1_o1](https://github.com/Meituan-Dianping/vision-ui/releases/download/v0.2.1/ui_det_v2.1_o1.onnx) | 9M  |  专为图标类  | 
+
 
 2.运行vision-ui/services/image_infer.py调试代码，结果文件保存在指定的infer_result_path目录，查看效果。
 
