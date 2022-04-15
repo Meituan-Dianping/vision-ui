@@ -35,7 +35,7 @@ class ImageInfer(object):
         boxes_xyxy[:, 3] = boxes[:, 1] + boxes[:, 3] / 2.
         boxes_xyxy /= ratio
         dets = multiclass_nms(boxes_xyxy, scores, nms_thr=self.nms_thresh, score_thr=self.cls_thresh)
-        if dets:
+        if dets is not None:
             # 兼容不同版本模型返回结果中UI classes index起始位置
             offset = 0
             match_obj = re.match(r'.*o(\d+)\.onnx$', self.model_path)
