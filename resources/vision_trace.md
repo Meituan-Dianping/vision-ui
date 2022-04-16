@@ -18,18 +18,26 @@ pip install git+https://github.com/openai/CLIP.git
 
 3.调试代码vision-ui/services/image_trace.py
 
-- 第一次运行代码，可能需要一段时间下载CLIP预训练模型
+- 第一次运行代码，需要一段时间下载预训练模型
 - 查找参数定义
 ```shell
-top_k = 3  # 最大匹配数量
-text_alpha = 0.5  # 文本语义关联性系数
+# 图像目标系数
+image_alpha = 1.0
+# 文本描述系数
+text_alpha = 0.6
+# 最大匹配目标数量
+top_k = 3
 ```
 - 目标描述定义
 ```shell
-target_image_info = {
-    'path': "./capture/local_images/search_icon.png", // 图片地址
-    'desc': "shape of magnifier with blue background" // 描述如形状,背景和颜色
-}
+# 构造目标图像
+target_img = np.zeros([100, 100, 3], dtype=np.uint8)+255
+cv2.putText(target_img, 'Q', (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 2.0, (0, 0, 0), thickness=3)
+# 可直接用预制图
+# target_img = cv2.imread("./capture/local_images/search_icon.png")
+# 目标语言描述
+desc = "shape of magnifier with blue background"
+target_image_info = {'img': target_img, 'desc': desc}
 ```
 
 

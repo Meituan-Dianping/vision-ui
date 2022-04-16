@@ -41,7 +41,7 @@ class ImageTrace(object):
         # 计算图像和文本匹配向量
         with torch.no_grad():
             img_pil = Image.fromarray(cv2.cvtColor(target_image, cv2.COLOR_BGR2RGB))
-            target_image_input = torch.tensor(self.preprocess(img_pil).unsqueeze(0).to(self.device))
+            target_image_input = self.preprocess(img_pil).unsqueeze(0).to(self.device).clone().detach()
             target_image_features = self.model.encode_image(target_image_input)
             source_image_input = torch.tensor(np.stack(roi_list))
             source_image_features = self.model.encode_image(source_image_input)
@@ -61,7 +61,7 @@ class ImageTrace(object):
         cls_ids = np.zeros(len(top_k_ids), dtype=int)
         boxes = [infer_result[i]['elem_det_region'] for i in top_k_ids]
         scores = [float(scores[i]) for i in top_k_ids]
-        image_show = img_show(cv2.imread(source_image_path), boxes, scores, cls_ids, conf=0.6, class_names=['T'])
+        image_show = img_show(cv2.imread(source_image_path), boxes, scores, cls_ids, conf=0.5, class_names=['T'])
         return image_show
 
     def video_target_track(self, video_path, target_image_info, work_path):
@@ -88,23 +88,6 @@ class ImageTrace(object):
                 break
 
 
-def search_target_image():
-    # search a target image
-    image_alpha = 1.0
-    text_alpha = 0.6
-    target_image_info = {
-        'path': "./capture/local_images/search_icon.png",
-        'desc': "shape of magnifier with blue background"
-    }
-    source_image_path = "./capture/local_images/05.png"
-    trace_result_path = "./capture/local_images/trace_result.png"
-    target_image_info['img'] = cv2.imread(target_image_info['path'])
-    image_trace = ImageTrace()
-    image_trace_show = image_trace.get_trace_result(target_image_info, source_image_path,
-                                                    image_alpha=image_alpha, text_alpha=text_alpha)
-    cv2.imwrite(trace_result_path, image_trace_show)
-
-
 def trace_target_video():
     target_image_info = {
         'path': "./capture/local_images/img_play_icon.png",
@@ -115,6 +98,32 @@ def trace_target_video():
     work_path = './capture/local_images'
     image_trace = ImageTrace()
     image_trace.video_target_track(video_path, target_image_info, work_path)
+
+
+def search_target_image():
+    """
+    # robust target image search
+    """
+    # 图像目标系数
+    image_alpha = 1.0
+    # 文本描述系数
+    text_alpha = 0.6
+    # 最大匹配目标数量
+    top_k = 3
+    # 构造目标图像
+    target_img = np.zeros([100, 100, 3], dtype=np.uint8)+255
+    cv2.putText(target_img, 'Q', (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 2.0, (0, 0, 0), thickness=3)
+    # 目标语言描述
+    desc = "shape of magnifier with blue background"
+    target_image_info = {'img': target_img, 'desc': desc}
+    source_image_path = "./capture/image_1.png"
+    trace_result_path = "./capture/local_images/trace_result.png"
+    # 查找目标
+    image_trace = ImageTrace()
+    image_trace_show = image_trace.get_trace_result(target_image_info, source_image_path, top_k=top_k,
+                                                    image_alpha=image_alpha, text_alpha=text_alpha)
+    cv2.imwrite(trace_result_path, image_trace_show)
+    print(f"Result saved {trace_result_path}")
 
 
 if __name__ == '__main__':
