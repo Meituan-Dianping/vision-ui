@@ -65,6 +65,7 @@ def get_ui_infer(image_path):
         boxes, scores, cls_inds = dets[:, :4], dets[:, 4], dets[:, 5]
         for i in range(len(boxes)):
             box = boxes[i]
+            box[box < 0] = 0
             box = box.tolist() if isinstance(box, (np.ndarray,)) else box
             elem_type = image_infer.UI_CLASSES[int(cls_inds[i])]
             score = scores[i]
