@@ -30,6 +30,7 @@ class ImageTrace(object):
         target_image = target_image_info.get('img', self.template_target_image)
         target_image_desc = target_image_info.get('desc', '')
         source_image = cv2.imread(source_image_path)
+        # 选择区域来源，只需提供位置，这里用ui-infer
         image_infer_result = get_ui_infer(source_image_path)
         text = clip.tokenize([target_image_desc]).to(self.device)
         # 提取检测目标

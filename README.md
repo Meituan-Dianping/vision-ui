@@ -27,7 +27,7 @@ pip3 install -r requirements.txt
 
 * 预训练模型-[UI目标检测](resources/vision_infer.md)
 
-* 视觉语义-[目标追踪](resources/vision_trace.md)
+* 视觉语义-[语义目标识别](resources/vision_trace.md)
 
 * 集成模型-[文本识别](resources/vision_text.md)
 
@@ -40,13 +40,14 @@ pip3 install -r requirements.txt
 |-------------------------|-------------------------|-------------------------|
 | ![](image/infer_01.png) | ![](image/infer_02.png) | ![](image/infer_03.png) |
 
-### 视觉对比
 
-| base                           | comparison                       | diff                                  |
-| ------------------------------ | -------------------------------- | ------------------------------------- |
-| ![](image/base_1.png)          | ![](image/comp_1.png)            | ![](image/diff_1.png)                 |
+### 语义目标识别
+| 文本描述                 | 识别                                 |
+|----------------------|------------------------------------|
+| red apple            | ![](image/trace_result_apple.png)  |
+| man with red hat     | ![](image/trace_result_mario.png)  |
 
-### 其他
+### 更多
 [效果展示](resources/vision_show.md)
 
 

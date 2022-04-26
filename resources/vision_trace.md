@@ -2,10 +2,8 @@
 
 > Vision-trace
 
-![](../image/image_trace.png)
-
 ### 简介
-一种鲁棒性的UI目标查找和追踪
+鲁棒性目标查找
 
 ### 本地调试
 
@@ -14,12 +12,12 @@
 pip install git+https://github.com/openai/CLIP.git
 ```
 
-2.可选 - 查看ui-infer对目标的检测情况，详见[目标检测](vision_infer.md)
+2.查看区域来源，可选其他方法只需提供位置信息，这里用ui-infer[目标检测](vision_infer.md)
 
 3.调试代码vision-ui/services/image_trace.py
 
 - 第一次运行代码，需要一段时间下载预训练模型
-- 查找参数定义
+- 查找参数定义，根据实际场景，图像文本可选其一
 ```shell
 # 图像目标系数
 image_alpha = 1.0
