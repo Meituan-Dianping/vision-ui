@@ -1,16 +1,26 @@
 import cv2
 import os
+
+import numpy
 import torch
 import clip
 import numpy as np
 from PIL import Image
 from scipy import spatial
 from service.image_infer import get_ui_infer
-from service.image_utils import get_roi_image, img_show
+from service.image_utils import get_roi_image, img_show, get_image_patches
 
 
 def cosine_similar(l1, l2):
     return 1 - spatial.distance.cosine(l1, l2)
+
+
+def get_proposals(target_image, source_image_path):
+    # 选择区域来源，只需提供位置，这里用ui-infer
+    # h, w, _ = target_image.shape
+    # image_infer_result = get_image_patches(cv2.imread(source_image_path), w, h)
+    image_infer_result = get_ui_infer(source_image_path)
+    return image_infer_result
 
 
 class ImageTrace(object):
@@ -30,11 +40,10 @@ class ImageTrace(object):
         target_image = target_image_info.get('img', self.template_target_image)
         target_image_desc = target_image_info.get('desc', '')
         source_image = cv2.imread(source_image_path)
-        # 选择区域来源，只需提供位置，这里用ui-infer
-        image_infer_result = get_ui_infer(source_image_path)
+        proposals = get_proposals(target_image, source_image_path)
         text = clip.tokenize([target_image_desc]).to(self.device)
         # 提取检测目标
-        for roi in image_infer_result:
+        for roi in proposals:
             x1, y1, x2, y2 = list(map(int, roi['elem_det_region']))
             roi = get_roi_image(source_image, [[x1, y1], [x2, y1], [x2, y2], [x1, y2]])
             img_pil = Image.fromarray(cv2.cvtColor(roi, cv2.COLOR_BGR2RGB))
@@ -45,16 +54,22 @@ class ImageTrace(object):
             target_image_input = self.preprocess(img_pil).unsqueeze(0).to(self.device).clone().detach()
             target_image_features = self.model.encode_image(target_image_input)
             source_image_input = torch.tensor(np.stack(roi_list))
-            source_image_features = self.model.encode_image(source_image_input)
-            logits_per_image, logits_per_text = self.model(source_image_input, text)
-            probs = logits_per_text.softmax(dim=-1).cpu().numpy()
+            if image_alpha != 0:
+                source_image_features = self.model.encode_image(source_image_input)
+            else:
+                source_image_features = numpy.zeros([len(source_image_input)], dtype=np.uint8)
+            if text_alpha != 0:
+                _, logits_per_text = self.model(source_image_input, text)
+                probs = logits_per_text.softmax(dim=-1).cpu().numpy()
+            else:
+                probs = [numpy.zeros([len(source_image_input)], dtype=np.uint8)]
         # 图像加文本
         for i, source_image_feature in enumerate(source_image_features):
-            score = cosine_similar(target_image_features[0], source_image_feature)
+            score = cosine_similar(target_image_features[0], source_image_feature) if image_alpha != 0 else 0
             img_text_score.append(score*image_alpha + probs[0][i]*text_alpha)
         score_norm = (img_text_score - np.min(img_text_score)) / (np.max(img_text_score) - np.min(img_text_score))
         top_k_ids = np.argsort(score_norm)[-top_k:]
-        return top_k_ids, score_norm, image_infer_result
+        return top_k_ids, score_norm, proposals
 
     def get_trace_result(self, target_image_info, source_image_path, top_k=3, image_alpha=1.0, text_alpha=0.6):
         top_k_ids, scores, infer_result = self.search_image(target_image_info, source_image_path,
@@ -106,18 +121,18 @@ def search_target_image():
     # robust target image search
     """
     # 图像目标系数
-    image_alpha = 1.0
+    image_alpha = 0.0
     # 文本描述系数
-    text_alpha = 0.6
+    text_alpha = 1.0
     # 最大匹配目标数量
-    top_k = 3
-    # 构造目标图像
+    top_k = 2
+    # 调试用，构造目标图像
     target_img = np.zeros([100, 100, 3], dtype=np.uint8)+255
     cv2.putText(target_img, 'Q', (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 2.0, (0, 0, 0), thickness=3)
     # 目标语言描述
-    desc = "shape of magnifier with blue background"
+    desc = "man with red hat"
     target_image_info = {'img': target_img, 'desc': desc}
-    source_image_path = "./capture/image_1.png"
+    source_image_path = "./capture/image_2.png"
     trace_result_path = "./capture/local_images/trace_result.png"
     # 查找目标
     image_trace = ImageTrace()

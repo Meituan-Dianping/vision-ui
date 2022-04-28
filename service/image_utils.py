@@ -306,3 +306,42 @@ def m_diff(e, f, i=0, j=0, equal_obj=object()):
         return [{"operation": "delete", "position_old": i + n} for n in range(0, N)]
     else:
         return [{"operation": "insert", "position_old": i, "position_new": j + n} for n in range(0, M)]
+
+
+def get_image_patches(img: numpy.ndarray, patch_w, patch_h):
+    patches = []
+    origin_h, origin_w, _ = img.shape
+    assert patch_w < origin_w and patch_h < origin_h
+    padding_w = numpy.zeros((origin_h, origin_w % patch_w, 3), numpy.uint8) + 255
+    padding_h = numpy.zeros((origin_h % patch_h, origin_w + origin_w % patch_w, 3), numpy.uint8) + 255
+    img_padding = numpy.vstack((numpy.hstack((img, padding_w)), padding_h))
+    h, w, _ = img_padding.shape
+    step_w = int(w / patch_w)
+    step_h = int(h / patch_h)
+    point_count_map = {}
+    # 滑动窗口生成patch
+    for i in range(0, step_w):
+        for j in range(0, step_h):
+            x0 = i*patch_w
+            y0 = j*patch_h
+            x1 = (i+1)*patch_w if (i+1)*patch_w < origin_w else origin_w
+            y1 = (j+1)*patch_h if (j+1)*patch_h < origin_h else origin_h
+            patches.append({'elem_det_region': [x0, y0, x1, y1]})
+            for point in [f"{x0},{y0}", f"{x0},{y1}", f"{x1},{y1}", f"{x1},{y0}"]:
+                if point not in point_count_map:
+                    point_count_map[point] = 1
+                else:
+                    point_count_map[point] = point_count_map[point] + 1
+    # 中间点生成patch，增加捕获率
+    points = [point for point in point_count_map.keys() if point_count_map[point] == 4]
+    for p in points:
+        p_x, p_y = p.split(',')
+        x, y = int(p_x), int(p_y)
+        x0 = x-int(patch_w/2)
+        y0 = y-int(patch_h/2)
+        x1 = x+int(patch_w/2) if x+int(patch_w/2) < origin_w else origin_w
+        y1 = y+int(patch_h/2) if y+int(patch_h/2) < origin_h else origin_h
+        patches.append({
+            'elem_det_region': [x0, y0, x1, y1]
+        })
+    return patches

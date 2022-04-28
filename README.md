@@ -42,10 +42,11 @@ pip3 install -r requirements.txt
 
 
 ### 语义目标识别
-| 文本描述                 | 识别                                 |
-|----------------------|------------------------------------|
-| red apple            | ![](image/trace_result_apple.png)  |
-| man with red hat     | ![](image/trace_result_mario.png)  |
+| image or text query  | proposal backend | result                               |
+|----------------------|-----------------|--------------------------------------|
+| ![](image/mario.png) | ui-infer        | ![](image/trace_result_mario.png)    |
+| red apple            | ui-infer        | ![](image/trace_result_apple.png)    |
+| a toy dinosaur       | patches         | ![](image/trace_result_dinosaur.png) |
 
 ### 更多
 [效果展示](resources/vision_show.md)
