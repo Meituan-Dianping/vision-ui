@@ -8,7 +8,7 @@ import numpy as np
 from PIL import Image
 from scipy import spatial
 from service.image_infer import get_ui_infer
-from service.image_utils import get_roi_image, img_show, get_image_patches
+from service.image_utils import get_roi_image, img_show, get_image_patches, proposal_fine_tune
 
 
 def cosine_similar(l1, l2):
@@ -67,8 +67,10 @@ class ImageTrace(object):
         for i, source_image_feature in enumerate(source_image_features):
             score = cosine_similar(target_image_features[0], source_image_feature) if image_alpha != 0 else 0
             img_text_score.append(score*image_alpha + probs[0][i]*text_alpha)
+        print("Max confidence:", np.max(img_text_score)/(image_alpha + text_alpha))
         score_norm = (img_text_score - np.min(img_text_score)) / (np.max(img_text_score) - np.min(img_text_score))
         top_k_ids = np.argsort(score_norm)[-top_k:]
+        proposal_fine_tune(score_norm, proposals, 0.8)
         return top_k_ids, score_norm, proposals
 
     def get_trace_result(self, target_image_info, source_image_path, top_k=3, image_alpha=1.0, text_alpha=0.6):
@@ -125,10 +127,11 @@ def search_target_image():
     # 文本描述系数
     text_alpha = 1.0
     # 最大匹配目标数量
-    top_k = 2
+    top_k = 1
     # 调试用，构造目标图像
     target_img = np.zeros([100, 100, 3], dtype=np.uint8)+255
     cv2.putText(target_img, 'Q', (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 2.0, (0, 0, 0), thickness=3)
+    # target_img = cv2.imread("./capture/local_images/mario.png")
     # 目标语言描述
     desc = "man with red hat"
     target_image_info = {'img': target_img, 'desc': desc}

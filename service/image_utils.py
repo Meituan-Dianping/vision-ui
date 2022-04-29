@@ -308,6 +308,59 @@ def m_diff(e, f, i=0, j=0, equal_obj=object()):
         return [{"operation": "insert", "position_old": i, "position_new": j + n} for n in range(0, M)]
 
 
+def compute_iou(rect1, rect2):
+    """
+    computing IoU
+    :param rec1: (y0, x0, y1, x1), which reflects
+            (top, left, bottom, right)
+    :param rec2: (y0, x0, y1, x1)
+    :return: scala value of IoU
+    """
+    rec1 = [rect1[1], rect1[0], rect1[3], rect1[2]]
+    rec2 = [rect2[1], rect2[0], rect2[3], rect2[2]]
+    # computing area of each rectangles
+    S_rec1 = (rec1[2] - rec1[0]) * (rec1[3] - rec1[1])
+    S_rec2 = (rec2[2] - rec2[0]) * (rec2[3] - rec2[1])
+
+    # computing the sum_area
+    sum_area = S_rec1 + S_rec2
+
+    # find the each edge of intersect rectangle
+    left_line = max(rec1[1], rec2[1])
+    right_line = min(rec1[3], rec2[3])
+    top_line = max(rec1[0], rec2[0])
+    bottom_line = min(rec1[2], rec2[2])
+
+    # judge if there is an intersect
+    if left_line >= right_line or top_line >= bottom_line:
+        return 0
+    else:
+        intersect = (right_line - left_line) * (bottom_line - top_line)
+        return (intersect / (sum_area - intersect)) * 1.0
+
+
+def proposal_fine_tune(scores, proposals, thresh):
+    _ids = [i for i, score in enumerate(scores) if score > thresh]
+    if len(_ids) > 1:
+        for i in range(0, len(_ids)-1):
+            index_i = _ids[i]
+            for j in range(i+1, len(_ids)):
+                index_j = _ids[j]
+                region_i = proposals[index_i]['elem_det_region']
+                region_j = proposals[index_j]['elem_det_region']
+                if compute_iou(region_i, region_j) > 0.1:
+                    if scores[index_i] > scores[index_j]:
+                        index_op, index_lr = index_i, index_j
+                    else:
+                        index_op, index_lr = index_j, index_i
+                    region_op = proposals[index_op]['elem_det_region']
+                    region_lr = proposals[index_lr]['elem_det_region']
+                    _x = int((region_op[0] - region_lr[0]) / 2)
+                    _y = int((region_op[1] - region_lr[1]) / 2)
+                    proposals[index_op]['elem_det_region'] = [region_op[0] - _x, region_op[1] - _y,
+                                                              region_op[2] - _x, region_op[3] - _y]
+
+
 def get_image_patches(img: numpy.ndarray, patch_w, patch_h):
     patches = []
     origin_h, origin_w, _ = img.shape
