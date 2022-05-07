@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import os
 
@@ -7,19 +9,39 @@ import clip
 import numpy as np
 from PIL import Image
 from scipy import spatial
+from config import CLIP_MODEL_PATH
 from service.image_infer import get_ui_infer
 from service.image_utils import get_roi_image, img_show, get_image_patches, proposal_fine_tune
+from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
+import onnxruntime as ort
+
+
+try:
+    from torchvision.transforms import InterpolationMode
+    BICUBIC = InterpolationMode.BICUBIC
+except ImportError:
+    BICUBIC = Image.BICUBIC
 
 
 def cosine_similar(l1, l2):
     return 1 - spatial.distance.cosine(l1, l2)
 
 
-def get_proposals(target_image, source_image_path):
-    # 选择区域来源，只需提供位置，这里用ui-infer
-    # h, w, _ = target_image.shape
-    # image_infer_result = get_image_patches(cv2.imread(source_image_path), w, h)
-    image_infer_result = get_ui_infer(source_image_path)
+def _convert_image_to_rgb(image):
+    return image.convert("RGB")
+
+
+def get_proposals(target_image, source_image_path, provider="ui-infer"):
+    """
+    选择区域来源，只需提供位置
+    """
+    # ui-infer，业务应用
+    if provider == 'ui-infer':
+        image_infer_result = get_ui_infer(source_image_path)
+    # patches，通用，稀疏元素
+    else:
+        h, w, _ = target_image.shape
+        image_infer_result = get_image_patches(cv2.imread(source_image_path), w, h)
     return image_infer_result
 
 
@@ -27,13 +49,23 @@ class ImageTrace(object):
     def __init__(self):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"Using {self.device}.")
-        print("Downloading model will take a while for the first time.")
-        self.template_target_image = np.zeros([100, 100, 3], dtype=np.uint8)+100
-        self.model, self.preprocess = clip.load("ViT-B/32", device=self.device)
+        self.n_px = 224
+        self.template_target_image = np.zeros([100, 100, 3], dtype=np.uint8) + 100
+        self.preprocess = self._get_preprocess()
+        self.ort_sess = ort.InferenceSession(CLIP_MODEL_PATH)
+
+    def _get_preprocess(self):
+        return Compose([
+            Resize(self.n_px, interpolation=BICUBIC),
+            CenterCrop(self.n_px),
+            _convert_image_to_rgb,
+            ToTensor(),
+            Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
+        ])
 
     def search_image(self, target_image_info: dict, source_image_path, top_k, image_alpha, text_alpha):
         top_k = top_k  # 最大匹配数量
-        image_alpha = image_alpha   # 图相关系数
+        image_alpha = image_alpha  # 图相关系数
         text_alpha = text_alpha  # 文本相关系数
         roi_list = []
         img_text_score = []
@@ -49,25 +81,25 @@ class ImageTrace(object):
             img_pil = Image.fromarray(cv2.cvtColor(roi, cv2.COLOR_BGR2RGB))
             roi_list.append(self.preprocess(img_pil).to(self.device))
         # 计算图像和文本匹配向量
-        with torch.no_grad():
-            img_pil = Image.fromarray(cv2.cvtColor(target_image, cv2.COLOR_BGR2RGB))
-            target_image_input = self.preprocess(img_pil).unsqueeze(0).to(self.device).clone().detach()
-            target_image_features = self.model.encode_image(target_image_input)
-            source_image_input = torch.tensor(np.stack(roi_list))
-            if image_alpha != 0:
-                source_image_features = self.model.encode_image(source_image_input)
-            else:
-                source_image_features = numpy.zeros([len(source_image_input)], dtype=np.uint8)
-            if text_alpha != 0:
-                _, logits_per_text = self.model(source_image_input, text)
-                probs = logits_per_text.softmax(dim=-1).cpu().numpy()
-            else:
-                probs = [numpy.zeros([len(source_image_input)], dtype=np.uint8)]
+        img_pil = Image.fromarray(cv2.cvtColor(target_image, cv2.COLOR_BGR2RGB))
+        target_image_input = self.preprocess(img_pil).unsqueeze(0).to(self.device).clone().detach()
+        source_image_input = torch.tensor(np.stack(roi_list))
+        _, logits_per_text,  source_image_features, = self.ort_sess.run(
+            ["LOGITS_PER_IMAGE", "LOGITS_PER_TEXT", "onnx::Mul_3493"],
+            {"IMAGE": source_image_input.numpy(), "TEXT": text.numpy()}
+        )
+        probs = torch.from_numpy(logits_per_text).softmax(dim=-1).cpu().numpy()
+        if image_alpha != 0:
+            target_image_features = self.ort_sess.run(
+                ["onnx::Mul_3493"], {"IMAGE": target_image_input.numpy(), "TEXT": text.numpy()}
+            )
+        else:
+            target_image_features = numpy.zeros([len(target_image_input)], dtype=np.uint8)
         # 图像加文本
         for i, source_image_feature in enumerate(source_image_features):
             score = cosine_similar(target_image_features[0], source_image_feature) if image_alpha != 0 else 0
-            img_text_score.append(score*image_alpha + probs[0][i]*text_alpha)
-        print("Max confidence:", np.max(img_text_score)/(image_alpha + text_alpha))
+            img_text_score.append(score * image_alpha + probs[0][i] * text_alpha)
+        print("Max confidence:", round(np.max(img_text_score) / (image_alpha + text_alpha), 3))
         score_norm = (img_text_score - np.min(img_text_score)) / (np.max(img_text_score) - np.min(img_text_score))
         top_k_ids = np.argsort(score_norm)[-top_k:]
         proposal_fine_tune(score_norm, proposals, 0.8)
@@ -133,17 +165,20 @@ def search_target_image():
     cv2.putText(target_img, 'Q', (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 2.0, (0, 0, 0), thickness=3)
     # target_img = cv2.imread("./capture/local_images/mario.png")
     # 目标语言描述
-    desc = "man with red hat"
+    desc = "smiling mario"
     target_image_info = {'img': target_img, 'desc': desc}
     source_image_path = "./capture/image_2.png"
     trace_result_path = "./capture/local_images/trace_result.png"
     # 查找目标
     image_trace = ImageTrace()
+    t1 = time.time()
     image_trace_show = image_trace.get_trace_result(target_image_info, source_image_path, top_k=top_k,
                                                     image_alpha=image_alpha, text_alpha=text_alpha)
+    print(f"Infer time:{round(time.time() - t1, 3)} s", )
     cv2.imwrite(trace_result_path, image_trace_show)
     print(f"Result saved {trace_result_path}")
 
 
 if __name__ == '__main__':
+    assert os.path.exists(CLIP_MODEL_PATH)
     search_target_image()
