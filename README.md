@@ -13,9 +13,12 @@ Vision UI 源于美团视觉测试工具，提供基于图像的UI处理和分�
 环境配置
 
 ```shell
+# create venv and activate
 git clone git@github.com:Meituan-Dianping/vision-ui.git --depth=1
 cd vision-ui
 pip3 install -r requirements.txt
+# set working directory for command-line usage
+export PYTHONPATH=$PYTHONPATH:$path/to/project/vision-ui
 ```
 
 

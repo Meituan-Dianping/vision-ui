@@ -14,7 +14,7 @@ pip install git+https://github.com/openai/CLIP.git
 
 2.查看区域来源，代码示例用ui-infer[目标检测](vision_infer.md)
 
-- ui-infer预训练模型，直接识别，业务页面，准确速度快
+- ui-infer预训练模型，直接识别，业务页面，位置准确速度快
 - patches滑动窗口，需调整patch的w/h，适用稀疏元素，游戏页面，速度一般
 - 其他方法，如提取边缘找包围框，只需提供位置信息
 
