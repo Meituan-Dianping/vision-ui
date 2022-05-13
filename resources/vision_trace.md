@@ -20,7 +20,7 @@ pip install git+https://github.com/openai/CLIP.git
 
 3.调试代码vision-ui/services/image_trace.py
 
-- 下载[clip_vit32_feat.onnx](https://github.com/Meituan-Dianping/vision-ui/releases/download/v0.2.1/clip_vit32_feat.onnx) 到config.py文件中定义的目录
+- 下载[clip_vit32_feat.onnx](https://github.com/Meituan-Dianping/vision-ui/releases/download/v0.2.1/clip_vit32_feat.onnx) 到config.py文件中CLIP_MODEL_PATH定义的目录
 - search_target_image方法参数定义，根据实际场景，图像文本可选其一
 ```shell
 # 图像目标系数

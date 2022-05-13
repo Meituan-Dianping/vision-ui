@@ -6,7 +6,7 @@
 
 # 简介
 
-Vision UI 源于美团视觉测试工具，提供基于图像的UI处理和分析能力
+Vision UI 源于美团视觉测试工具，提供基于图像的UI分析能力
 
 本项目无需训练模型，[Vision-ml](https://github.com/Meituan-Dianping/vision) 项目提供RCNN训练框架
 
