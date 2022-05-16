@@ -70,6 +70,7 @@ def vision_text():
 def vision_infer():
     code = 0
     image_type = request.json.get('type', 'url')
+    cls_thresh = request.json.get('cls_thresh', 0.5)
     if image_type == 'url':
         img_url = request.json['url']
         image_name = f'{hashlib.md5(img_url.encode(encoding="utf-8")).hexdigest()}.{img_url.split(".")[-1]}'
@@ -82,7 +83,7 @@ def vision_infer():
         raise Exception(f'UI infer API don`t support this type: {image_type}')
 
     try:
-        data = get_ui_infer(image_path)
+        data = get_ui_infer(image_path, cls_thresh)
     finally:
         os.remove(image_path)
 

@@ -55,11 +55,12 @@ class ImageInfer(object):
 image_infer = ImageInfer(IMAGE_INFER_MODEL_PATH)
 
 
-def get_ui_infer(image_path):
+def get_ui_infer(image_path, cls_thresh):
     """
     elem_det_region x1,y1,x2,y2
     """
     data = []
+    image_infer.cls_thresh = cls_thresh if isinstance(cls_thresh, float) else image_infer.cls_thresh
     dets = image_infer.ui_infer(image_path)
     if isinstance(dets, np.ndarray):
         boxes, scores, cls_inds = dets[:, :4], dets[:, 4], dets[:, 5]
