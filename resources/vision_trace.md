@@ -7,18 +7,13 @@
 
 ### 本地调试
 
-1.CLIP环境配置
-```shell
-pip install git+https://github.com/openai/CLIP.git
-```
-
-2.查看区域来源，代码示例用ui-infer[目标检测](vision_infer.md)
+1.查看区域来源，代码示例用ui-infer[目标检测](vision_infer.md)
 
 - ui-infer预训练模型，直接识别，业务页面，位置准确速度快
 - patches滑动窗口，需调整patch的w/h，适用稀疏元素，游戏页面，速度一般
 - 其他方法，如提取边缘找包围框，只需提供位置信息
 
-3.调试代码vision-ui/services/image_trace.py
+2.调试代码vision-ui/services/image_trace.py
 
 - 下载[clip_vit32_feat.onnx](https://github.com/Meituan-Dianping/vision-ui/releases/download/v0.2.1/clip_vit32_feat.onnx) 到config.py文件中CLIP_MODEL_PATH定义的目录
 - search_target_image方法参数定义，根据实际场景，图像文本可选其一
