@@ -9,11 +9,11 @@ import clip
 import numpy as np
 from PIL import Image
 from scipy import spatial
-from config import CLIP_MODEL_PATH
+from config import CLIP_MODEL_PATH, OP_NUM_THREADS
 from service.image_infer import get_ui_infer
 from service.image_utils import get_roi_image, img_show, get_image_patches, proposal_fine_tune
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
-import onnxruntime as ort
+import onnxruntime
 
 
 try:
@@ -52,7 +52,9 @@ class ImageTrace(object):
         self.n_px = 224
         self.template_target_image = np.zeros([100, 100, 3], dtype=np.uint8) + 100
         self.preprocess = self._get_preprocess()
-        self.ort_sess = ort.InferenceSession(CLIP_MODEL_PATH)
+        so = onnxruntime.SessionOptions()
+        so.intra_op_num_threads = OP_NUM_THREADS
+        self.ort_sess = onnxruntime.InferenceSession(CLIP_MODEL_PATH, sess_options=so)
         print("Finish loading")
 
     def _get_preprocess(self):

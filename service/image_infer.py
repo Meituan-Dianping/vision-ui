@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import onnxruntime
 import time
-from config import IMAGE_INFER_MODEL_PATH
+from config import IMAGE_INFER_MODEL_PATH, OP_NUM_THREADS
 from service.image_utils import yolox_preprocess, yolox_postprocess, multiclass_nms, img_show
 
 
@@ -16,8 +16,7 @@ class ImageInfer(object):
         self.nms_thresh = 0.2
         self.model_path = model_path
         so = onnxruntime.SessionOptions()
-        # 配置intra_op_num_threads为CPU核数时最佳
-        so.intra_op_num_threads = 4
+        so.intra_op_num_threads = OP_NUM_THREADS
         self.model_session = onnxruntime.InferenceSession(self.model_path, sess_options=so)
 
     def ui_infer(self, image_path):
