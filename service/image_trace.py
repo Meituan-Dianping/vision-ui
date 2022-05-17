@@ -48,11 +48,12 @@ def get_proposals(target_image, source_image_path, provider="ui-infer"):
 class ImageTrace(object):
     def __init__(self):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        print(f"Using {self.device}.")
+        print(f"Using {self.device}.Start loading model.")
         self.n_px = 224
         self.template_target_image = np.zeros([100, 100, 3], dtype=np.uint8) + 100
         self.preprocess = self._get_preprocess()
         self.ort_sess = ort.InferenceSession(CLIP_MODEL_PATH)
+        print("Finish loading")
 
     def _get_preprocess(self):
         return Compose([
@@ -63,16 +64,17 @@ class ImageTrace(object):
             Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
         ])
 
-    def search_image(self, target_image_info: dict, source_image_path, top_k, image_alpha, text_alpha):
+    def search_image(self, target_image_info: dict, source_image_path, top_k, image_alpha, text_alpha, provider):
         top_k = top_k  # 最大匹配数量
         image_alpha = image_alpha  # 图相关系数
         text_alpha = text_alpha  # 文本相关系数
         roi_list = []
         img_text_score = []
         target_image = target_image_info.get('img', self.template_target_image)
+        target_image = cv2.imread(target_image) if isinstance(target_image, str) else target_image
         target_image_desc = target_image_info.get('desc', '')
         source_image = cv2.imread(source_image_path)
-        proposals = get_proposals(target_image, source_image_path)
+        proposals = get_proposals(target_image, source_image_path, provider=provider)
         text = clip.tokenize([target_image_desc]).to(self.device)
         # 提取检测目标
         for roi in proposals:
@@ -99,15 +101,18 @@ class ImageTrace(object):
         for i, source_image_feature in enumerate(source_image_features):
             score = cosine_similar(target_image_features[0], source_image_feature) if image_alpha != 0 else 0
             img_text_score.append(score * image_alpha + probs[0][i] * text_alpha)
-        print("Max confidence:", round(np.max(img_text_score) / (image_alpha + text_alpha), 3))
+        max_confidence = round(np.max(img_text_score) / (image_alpha + text_alpha), 3)
         score_norm = (img_text_score - np.min(img_text_score)) / (np.max(img_text_score) - np.min(img_text_score))
         top_k_ids = np.argsort(score_norm)[-top_k:]
         proposal_fine_tune(score_norm, proposals, 0.8)
-        return top_k_ids, score_norm, proposals
+        return top_k_ids, score_norm, proposals, max_confidence
 
-    def get_trace_result(self, target_image_info, source_image_path, top_k=3, image_alpha=1.0, text_alpha=0.6):
-        top_k_ids, scores, infer_result = self.search_image(target_image_info, source_image_path,
-                                                            top_k, image_alpha, text_alpha)
+    def get_trace_result(self, target_image_info, source_image_path, top_k=3, image_alpha=1.0,
+                         text_alpha=0.6, proposal_provider='ui-infer'):
+        top_k_ids, scores, infer_result, max_confidence = self.search_image(
+            target_image_info, source_image_path, top_k, image_alpha, text_alpha, proposal_provider
+        )
+        print(f"Max confidence:{max_confidence}")
         cls_ids = np.zeros(len(top_k_ids), dtype=int)
         boxes = [infer_result[i]['elem_det_region'] for i in top_k_ids]
         scores = [float(scores[i]) for i in top_k_ids]
@@ -138,6 +143,9 @@ class ImageTrace(object):
                 break
 
 
+image_trace = ImageTrace()
+
+
 def trace_target_video():
     target_image_info = {
         'path': "./capture/local_images/img_play_icon.png",
@@ -146,7 +154,6 @@ def trace_target_video():
     target_image_info['img'] = cv2.imread(target_image_info['path'])
     video_path = "./capture/local_images/video.mp4"
     work_path = './capture/local_images'
-    image_trace = ImageTrace()
     image_trace.video_target_track(video_path, target_image_info, work_path)
 
 
@@ -170,7 +177,6 @@ def search_target_image():
     source_image_path = "./capture/image_2.png"
     trace_result_path = "./capture/local_images/trace_result.png"
     # 查找目标
-    image_trace = ImageTrace()
     t1 = time.time()
     image_trace_show = image_trace.get_trace_result(target_image_info, source_image_path, top_k=top_k,
                                                     image_alpha=image_alpha, text_alpha=text_alpha)

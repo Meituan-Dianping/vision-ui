@@ -9,6 +9,7 @@ from service.image_infer import get_ui_infer
 from service.image_merge import Stitcher
 from service.image_similar import HashSimilar
 from service.image_text import get_image_text
+from service.image_trace import image_trace
 from service.image_utils import download_image, get_pop_v, save_base64_image
 
 
@@ -90,6 +91,64 @@ def vision_infer():
     result = {
         "code": code,
         "data": data
+    }
+    resp = make_response(jsonify(result))
+    resp.headers["Content-Type"] = "application/json;charset=utf-8"
+    return resp
+
+
+@vision.route('/semantic-search', methods=["POST"])
+def semantic_search():
+    """
+    req json:
+    {
+        type: [optional] 'url' or 'base64', 'url'
+        target_image,
+        source_image,
+        target_desc,
+        image_alpha [float] 0.0-1.0,
+        text_alpha: [float] 0.0-1.0,
+        top_k: [optional] integer value >=1, 1
+        proposal_provider: [optional] 'ui-infer' or 'patches', 'ui-infer'
+    }
+    """
+    code = 0
+    image_type = request.json.get('type', 'url')
+    target_image = request.json.get('target_image')
+    source_image = request.json.get('source_image')
+    if image_type == 'url':
+        image_name = f'{hashlib.md5(target_image.encode(encoding="utf-8")).hexdigest()}.{target_image.split(".")[-1]}'
+        target_image_path = download_image(target_image, image_name)
+        image_name = f'{hashlib.md5(source_image.encode(encoding="utf-8")).hexdigest()}.{source_image.split(".")[-1]}'
+        source_image_path = download_image(source_image, image_name)
+    elif image_type == 'base64':
+        image_name = f'{hashlib.md5(target_image.encode(encoding="utf-8")).hexdigest()}.png'
+        target_image_path = save_base64_image(target_image, image_name)
+        image_name = f'{hashlib.md5(source_image.encode(encoding="utf-8")).hexdigest()}.png'
+        source_image_path = save_base64_image(source_image, image_name)
+    else:
+        raise Exception(f'Not supported type: {image_type}')
+    try:
+        target_image_info = {'img': target_image_path, 'desc': request.json.get('target_desc', '')}
+        top_k_ids, scores, infer_result, max_confidence = image_trace.search_image(
+            target_image_info, source_image_path, request.json.get('top_k', 1), request.json.get('image_alpha'),
+            request.json.get('text_alpha'), request.json.get('proposal_provider', 'ui-infer')
+        )
+        data = []
+        for i in top_k_ids:
+            data.append({
+                'score': round(float(scores[i]), 2),
+                'boxes': [int(k) for k in infer_result[i]['elem_det_region']]
+            })
+    finally:
+        os.remove(target_image_path)
+        os.remove(source_image_path)
+    result = {
+        "code": code,
+        "data": {
+            'max_confidence': max_confidence,
+            'search_result': data
+        }
     }
     resp = make_response(jsonify(result))
     resp.headers["Content-Type"] = "application/json;charset=utf-8"
