@@ -12,3 +12,6 @@ def get_image_text(image):
     }
     return result
 
+
+if __name__ == '__main__':
+    print(get_image_text('image_1.png'))

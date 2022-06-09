@@ -94,3 +94,4 @@ if __name__ == '__main__':
     print(f"Infer time: {round(time.time()-t1, 3)}s")
     infer_result_name = f"infer_{str(time.time()).split('.')[-1][:4]}.png"
     image_infer.show_infer(dets, cv2.imread(image_path), os.path.join(infer_result_path, infer_result_name))
+    print(f"Result saved {infer_result_path}/{infer_result_name}")

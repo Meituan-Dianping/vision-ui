@@ -177,13 +177,15 @@ def search_target_image():
     desc = "smiling mario"
     target_image_info = {'img': target_img, 'desc': desc}
     source_image_path = "./capture/image_2.png"
-    trace_result_path = "./capture/local_images/trace_result.png"
+    trace_result_path = "./capture/local_images/"
+    if not os.path.exists(trace_result_path):
+        os.mkdir(trace_result_path)
     # 查找目标
     t1 = time.time()
     image_trace_show = image_trace.get_trace_result(target_image_info, source_image_path, top_k=top_k,
                                                     image_alpha=image_alpha, text_alpha=text_alpha)
     print(f"Infer time:{round(time.time() - t1, 3)} s", )
-    cv2.imwrite(trace_result_path, image_trace_show)
+    cv2.imwrite(trace_result_path+'trace_result.png', image_trace_show)
     print(f"Result saved {trace_result_path}")
 
 
