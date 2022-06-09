@@ -37,7 +37,7 @@ def get_proposals(target_image, source_image_path, provider="ui-infer"):
     """
     # ui-infer，业务应用
     if provider == 'ui-infer':
-        image_infer_result = get_ui_infer(source_image_path, 0.2)
+        image_infer_result = get_ui_infer(source_image_path, 0.01)
     # patches，通用，稀疏元素
     else:
         h, w, _ = target_image.shape
