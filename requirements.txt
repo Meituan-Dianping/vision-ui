@@ -1,12 +1,13 @@
 Flask
 Flask-Cors
 scipy
-opencv-python==4.2.0.32
-numpy==1.21.0
+numpy
+opencv-python==4.5.2.52
 pillow==9.0.1
 paddlepaddle==2.2.2
 gunicorn==20.0.4
 onnxruntime==1.10.0
 pyclipper==1.2.0
 shapely==1.7.1
+protobuf==3.20.1
 git+https://github.com/openai/CLIP.git
