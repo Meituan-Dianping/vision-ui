@@ -31,24 +31,29 @@ def _convert_image_to_rgb(image):
     return image.convert("RGB")
 
 
-def get_proposals(target_image, source_image_path, provider="ui-infer"):
+def get_proposals(target_image, source_image_path, provider="ui-infer", patches_resolution="normal"):
     """
     选择区域来源，只需提供位置
     """
     # ui-infer，业务应用
     if provider == 'ui-infer':
-        image_infer_result = get_ui_infer(source_image_path, 0.2)
+        image_infer_result = get_ui_infer(source_image_path, 0.01)
     # patches，通用，稀疏元素
     else:
         h, w, _ = target_image.shape
-        image_infer_result = get_image_patches(cv2.imread(source_image_path), w, h)
+        resolution_map = {
+            'normal': [0.6, 0.6],
+            'high': [0.3, 0.3]
+        }
+        resolution = resolution_map[patches_resolution]
+        image_infer_result = get_image_patches(cv2.imread(source_image_path), w, h, resolution[0], resolution[1])
     return image_infer_result
 
 
 class ImageTrace(object):
     def __init__(self):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        print(f"Using {self.device}.Start loading model.")
+        print(f"Using {self.device}.\nStart loading model")
         self.n_px = 224
         self.template_target_image = np.zeros([100, 100, 3], dtype=np.uint8) + 100
         self.preprocess = self._get_preprocess()
@@ -106,7 +111,7 @@ class ImageTrace(object):
         max_confidence = round(np.max(img_text_score) / (image_alpha + text_alpha), 3)
         score_norm = (img_text_score - np.min(img_text_score)) / (np.max(img_text_score) - np.min(img_text_score))
         top_k_ids = np.argsort(score_norm)[-top_k:]
-        proposal_fine_tune(score_norm, proposals, 0.8)
+        proposal_fine_tune(score_norm, proposals, 0.9)
         return top_k_ids, score_norm, proposals, max_confidence
 
     def get_trace_result(self, target_image_info, source_image_path, top_k=3, image_alpha=1.0,
@@ -181,7 +186,8 @@ def search_target_image():
     # 查找目标
     t1 = time.time()
     image_trace_show = image_trace.get_trace_result(target_image_info, source_image_path, top_k=top_k,
-                                                    image_alpha=image_alpha, text_alpha=text_alpha)
+                                                    image_alpha=image_alpha, text_alpha=text_alpha,
+                                                    proposal_provider='ui-infer', )
     print(f"Infer time:{round(time.time() - t1, 3)} s", )
     cv2.imwrite(trace_result_path, image_trace_show)
     print(f"Result saved {trace_result_path}")

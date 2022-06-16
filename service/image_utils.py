@@ -341,27 +341,22 @@ def compute_iou(rect1, rect2):
 
 def proposal_fine_tune(scores, proposals, thresh):
     _ids = [i for i, score in enumerate(scores) if score > thresh]
+    top_k_ids = numpy.argsort(scores)[-2:]
     if len(_ids) > 1:
-        for i in range(0, len(_ids)-1):
-            index_i = _ids[i]
-            for j in range(i+1, len(_ids)):
-                index_j = _ids[j]
-                region_i = proposals[index_i]['elem_det_region']
-                region_j = proposals[index_j]['elem_det_region']
-                if compute_iou(region_i, region_j) > 0.1:
-                    if scores[index_i] > scores[index_j]:
-                        index_op, index_lr = index_i, index_j
-                    else:
-                        index_op, index_lr = index_j, index_i
-                    region_op = proposals[index_op]['elem_det_region']
-                    region_lr = proposals[index_lr]['elem_det_region']
-                    _x = int((region_op[0] - region_lr[0]) / 2)
-                    _y = int((region_op[1] - region_lr[1]) / 2)
-                    proposals[index_op]['elem_det_region'] = [region_op[0] - _x, region_op[1] - _y,
-                                                              region_op[2] - _x, region_op[3] - _y]
+        index_i = top_k_ids[0]
+        index_j = top_k_ids[1]
+        region_i = proposals[index_i]['elem_det_region']
+        region_j = proposals[index_j]['elem_det_region']
+        iou = compute_iou(region_i, region_j)
+        print(iou)
+        if iou > 0.3:
+            _x = int(((region_j[0] - region_i[0]) / 2))
+            _y = int(((region_j[1] - region_i[1]) / 2))
+            proposals[index_j]['elem_det_region'] = [region_j[0] - _x, region_j[1] - _y,
+                                                     region_j[2] - _x, region_j[3] - _y]
 
 
-def get_image_patches(img: numpy.ndarray, patch_w, patch_h):
+def get_image_patches(img: numpy.ndarray, patch_w, patch_h, resolution_w: float, resolution_h: float):
     patches = []
     origin_h, origin_w, _ = img.shape
     assert patch_w < origin_w and patch_h < origin_h
@@ -373,28 +368,17 @@ def get_image_patches(img: numpy.ndarray, patch_w, patch_h):
     step_h = int(h / patch_h)
     point_count_map = {}
     # 滑动窗口生成patch
-    for i in range(0, step_w):
-        for j in range(0, step_h):
-            x0 = i*patch_w
-            y0 = j*patch_h
-            x1 = (i+1)*patch_w if (i+1)*patch_w < origin_w else origin_w
-            y1 = (j+1)*patch_h if (j+1)*patch_h < origin_h else origin_h
-            patches.append({'elem_det_region': [x0, y0, x1, y1]})
-            for point in [f"{x0},{y0}", f"{x0},{y1}", f"{x1},{y1}", f"{x1},{y0}"]:
-                if point not in point_count_map:
-                    point_count_map[point] = 1
-                else:
-                    point_count_map[point] = point_count_map[point] + 1
-    # 中间点生成patch，增加捕获率
-    points = [point for point in point_count_map.keys() if point_count_map[point] == 4]
-    for p in points:
-        p_x, p_y = p.split(',')
-        x, y = int(p_x), int(p_y)
-        x0 = x-int(patch_w/2)
-        y0 = y-int(patch_h/2)
-        x1 = x+int(patch_w/2) if x+int(patch_w/2) < origin_w else origin_w
-        y1 = y+int(patch_h/2) if y+int(patch_h/2) < origin_h else origin_h
-        patches.append({
-            'elem_det_region': [x0, y0, x1, y1]
-        })
+    for i in numpy.arange(0, step_w, resolution_w):
+        for j in numpy.arange(0, step_h, resolution_h):
+            x0 = int(i*patch_w)
+            y0 = int(j*patch_h)
+            x1 = int((i+1)*patch_w) if (i+1)*patch_w < origin_w else origin_w
+            y1 = int((j+1)*patch_h) if (j+1)*patch_h < origin_h else origin_h
+            if x1 > x0 and y1 > y0:
+                patches.append({'elem_det_region': [x0, y0, x1, y1]})
+                for point in [f"{x0},{y0}", f"{x0},{y1}", f"{x1},{y1}", f"{x1},{y0}"]:
+                    if point not in point_count_map:
+                        point_count_map[point] = 1
+                    else:
+                        point_count_map[point] = point_count_map[point] + 1
     return patches
