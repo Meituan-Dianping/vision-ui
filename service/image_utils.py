@@ -348,7 +348,6 @@ def proposal_fine_tune(scores, proposals, thresh):
         region_i = proposals[index_i]['elem_det_region']
         region_j = proposals[index_j]['elem_det_region']
         iou = compute_iou(region_i, region_j)
-        print(iou)
         if iou > 0.3:
             _x = int(((region_j[0] - region_i[0]) / 2))
             _y = int(((region_j[1] - region_i[1]) / 2))
@@ -357,6 +356,9 @@ def proposal_fine_tune(scores, proposals, thresh):
 
 
 def get_image_patches(img: numpy.ndarray, patch_w, patch_h, resolution_w: float, resolution_h: float):
+    """
+    滑动窗口生成patches
+    """
     patches = []
     origin_h, origin_w, _ = img.shape
     assert patch_w < origin_w and patch_h < origin_h
@@ -366,8 +368,6 @@ def get_image_patches(img: numpy.ndarray, patch_w, patch_h, resolution_w: float,
     h, w, _ = img_padding.shape
     step_w = int(w / patch_w)
     step_h = int(h / patch_h)
-    point_count_map = {}
-    # 滑动窗口生成patch
     for i in numpy.arange(0, step_w, resolution_w):
         for j in numpy.arange(0, step_h, resolution_h):
             x0 = int(i*patch_w)
@@ -376,9 +376,19 @@ def get_image_patches(img: numpy.ndarray, patch_w, patch_h, resolution_w: float,
             y1 = int((j+1)*patch_h) if (j+1)*patch_h < origin_h else origin_h
             if x1 > x0 and y1 > y0:
                 patches.append({'elem_det_region': [x0, y0, x1, y1]})
-                for point in [f"{x0},{y0}", f"{x0},{y1}", f"{x1},{y1}", f"{x1},{y0}"]:
-                    if point not in point_count_map:
-                        point_count_map[point] = 1
-                    else:
-                        point_count_map[point] = point_count_map[point] + 1
     return patches
+
+
+def get_patches_value(img: numpy.ndarray, num_split: int):
+    origin_h, origin_w, _ = img.shape
+    padding_h = origin_h % num_split
+    padding_w = origin_w % num_split
+    _img = img[:origin_h-padding_h, :origin_w-padding_w, :]
+    _h, _w, _ = _img.shape
+    patches = get_image_patches(_img, int(_w/num_split), int(_h/num_split), 1.0, 1.0)
+    ret = {}
+    for i, patch in enumerate(patches):
+        x1, y1, x2, y2 = list(map(int, patch['elem_det_region']))
+        roi = get_roi_image(img, [[x1, y1], [x2, y1], [x2, y2], [x1, y2]])
+        ret[i] = int(numpy.mean(roi))
+    return ret

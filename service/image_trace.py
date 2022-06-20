@@ -35,10 +35,10 @@ def get_proposals(target_image, source_image_path, provider="ui-infer", patches_
     """
     选择区域来源，只需提供位置
     """
-    # ui-infer，业务应用
+    # ui-infer，模型推理
     if provider == 'ui-infer':
         image_infer_result = get_ui_infer(source_image_path, 0.01)
-    # patches，通用，稀疏元素
+    # patches，滑动窗口
     else:
         h, w, _ = target_image.shape
         resolution_map = {
@@ -46,7 +46,11 @@ def get_proposals(target_image, source_image_path, provider="ui-infer", patches_
             'high': [0.3, 0.3]
         }
         resolution = resolution_map[patches_resolution]
-        image_infer_result = get_image_patches(cv2.imread(source_image_path), w, h, resolution[0], resolution[1])
+        source_img = cv2.imread(source_image_path)
+        _h, _w, _ = source_img.shape
+        resolution[0] = round(resolution[0]/2, 1) if _w / w < 6 else resolution[0]
+        resolution[1] = round(resolution[1]/2, 1) if _h / h < 6 else resolution[1]
+        image_infer_result = get_image_patches(source_img, w, h, resolution[0], resolution[1])
     return image_infer_result
 
 
@@ -179,7 +183,7 @@ def search_target_image():
     cv2.putText(target_img, 'Q', (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 2.0, (0, 0, 0), thickness=3)
     # target_img = cv2.imread("./capture/local_images/mario.png")
     # 目标语言描述
-    desc = "smiling mario"
+    desc = "mario"
     target_image_info = {'img': target_img, 'desc': desc}
     source_image_path = "./capture/image_2.png"
     trace_result_path = "./capture/local_images/"
@@ -189,7 +193,7 @@ def search_target_image():
     t1 = time.time()
     image_trace_show = image_trace.get_trace_result(target_image_info, source_image_path, top_k=top_k,
                                                     image_alpha=image_alpha, text_alpha=text_alpha,
-                                                    proposal_provider='ui-infer', )
+                                                    proposal_provider='ui-infer')
     print(f"Infer time:{round(time.time() - t1, 3)} s", )
     cv2.imwrite(trace_result_path+'trace_result.png', image_trace_show)
     print(f"Result saved {trace_result_path}")
