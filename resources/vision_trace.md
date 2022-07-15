@@ -3,7 +3,7 @@
 > Vision-trace
 
 ### 简介
-鲁棒性目标查找
+语义目标查找
 
 ### 本地调试
 
@@ -15,7 +15,12 @@
 
 2.调试代码vision-ui/services/image_trace.py
 
-- 下载[clip_vit32_feat.onnx](https://github.com/Meituan-Dianping/vision-ui/releases/download/v0.2.1/clip_vit32_feat.onnx) 到config.py文件中CLIP_MODEL_PATH定义的目录
+|                                                         模型                                                          | 语义理解 | 速度  |
+|:-------------------------------------------------------------------------------------------------------------------:|:----:|:---:| 
+| [clip_vit32_feat.onnx](https://github.com/Meituan-Dianping/vision-ui/releases/download/v0.2.1/clip_vit32_feat.onnx) |  普通  |  快  | 
+| [clip_vit16_3493.onnx](https://github.com/Meituan-Dianping/vision-ui/releases/download/v0.2.1/clip_vit16_3493.onnx) |  高   | 普通  | 
+
+- 下载模型到config.py文件中CLIP_MODEL_PATH定义的目录
 - search_target_image方法参数定义，根据实际场景，图像文本可选其一
 ```shell
 # 图像目标系数
