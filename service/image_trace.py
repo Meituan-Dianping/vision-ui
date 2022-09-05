@@ -110,7 +110,7 @@ class ImageTrace(object):
             target_image_features = numpy.zeros([len(target_image_input)], dtype=np.uint8)
         # 图像加文本
         for i, source_image_feature in enumerate(source_image_features):
-            score = cosine_similar(target_image_features[0], source_image_feature) if image_alpha != 0 else 0
+            score = cosine_similar(target_image_features[0][0], source_image_feature) if image_alpha != 0 else 0
             img_text_score.append(score * image_alpha + probs[0][i] * text_alpha)
         max_confidence = round(np.max(img_text_score) / (image_alpha + text_alpha), 3)
         score_norm = (img_text_score - np.min(img_text_score)) / (np.max(img_text_score) - np.min(img_text_score))
