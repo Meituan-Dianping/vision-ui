@@ -11,7 +11,7 @@ from PIL import Image
 from scipy import spatial
 from config import CLIP_MODEL_PATH, OP_NUM_THREADS
 from service.image_infer import get_ui_infer
-from service.image_utils import get_roi_image, img_show, get_image_patches, proposal_fine_tune
+from service.image_utils import get_roi_image, img_show, get_image_patches, proposal_fine_tune, get_infer_area
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
 import onnxruntime
 
@@ -113,6 +113,11 @@ class ImageTrace(object):
             score = cosine_similar(target_image_features[0][0], source_image_feature) if image_alpha != 0 else 0
             img_text_score.append(score * image_alpha + probs[0][i] * text_alpha)
         max_confidence = round(np.max(img_text_score) / (image_alpha + text_alpha), 3)
+        # CLIP refer text in image
+        target_image_infer = get_ui_infer(target_image, 0.1)
+        target_area_rate = get_infer_area(target_image_infer) / (target_image.shape[0] * target_image.shape[1])
+        if target_area_rate < 0.1:
+            max_confidence = max_confidence - 0.06 * ((0.1 - target_area_rate)/0.1)
         score_norm = (img_text_score - np.min(img_text_score)) / (np.max(img_text_score) - np.min(img_text_score))
         top_k_ids = np.argsort(score_norm)[-top_k:]
         proposal_fine_tune(score_norm, proposals, 0.9)

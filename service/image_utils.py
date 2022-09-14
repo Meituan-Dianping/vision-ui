@@ -41,6 +41,14 @@ def get_roi_image(img, rectangle_contour):
     return roi_image
 
 
+def get_infer_area(infer_result):
+    area = 0
+    for result in infer_result:
+        region = result['elem_det_region']
+        area = area + (int((region[2] - region[0]))*(int(region[3] - region[1])))
+    return area
+
+
 def get_pop_v(image):
     """
     calculate value if a pop window exit

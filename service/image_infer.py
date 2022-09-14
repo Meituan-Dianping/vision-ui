@@ -19,8 +19,8 @@ class ImageInfer(object):
         so.intra_op_num_threads = OP_NUM_THREADS
         self.model_session = onnxruntime.InferenceSession(self.model_path, sess_options=so)
 
-    def ui_infer(self, image_path):
-        origin_img = cv2.imread(image_path)
+    def ui_infer(self, image):
+        origin_img = cv2.imread(image) if isinstance(image, str) else image
         img, ratio = yolox_preprocess(origin_img, self.input_shape)
         ort_inputs = {self.model_session.get_inputs()[0].name: img[None, :, :, :]}
         output = self.model_session.run(None, ort_inputs)
@@ -54,13 +54,13 @@ class ImageInfer(object):
 image_infer = ImageInfer(IMAGE_INFER_MODEL_PATH)
 
 
-def get_ui_infer(image_path, cls_thresh):
+def get_ui_infer(image, cls_thresh):
     """
     elem_det_region x1,y1,x2,y2
     """
     data = []
     image_infer.cls_thresh = cls_thresh if isinstance(cls_thresh, float) else image_infer.cls_thresh
-    dets = image_infer.ui_infer(image_path)
+    dets = image_infer.ui_infer(image)
     if isinstance(dets, np.ndarray):
         boxes, scores, cls_inds = dets[:, :4], dets[:, 4], dets[:, 5]
         for i in range(len(boxes)):
@@ -92,6 +92,6 @@ if __name__ == '__main__':
     t1 = time.time()
     dets = image_infer.ui_infer(image_path)
     print(f"Infer time: {round(time.time()-t1, 3)}s")
-    infer_result_name = f"infer_{str(time.time()).split('.')[-1][:4]}.png"
+    infer_result_name = f"infer_result.png"
     image_infer.show_infer(dets, cv2.imread(image_path), os.path.join(infer_result_path, infer_result_name))
     print(f"Result saved {infer_result_path}/{infer_result_name}")
