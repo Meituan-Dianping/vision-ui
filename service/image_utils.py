@@ -369,7 +369,7 @@ def get_image_patches(img: numpy.ndarray, patch_w, patch_h, resolution_w: float,
     """
     patches = []
     origin_h, origin_w, _ = img.shape
-    assert patch_w < origin_w and patch_h < origin_h
+    assert patch_w <= origin_w and patch_h <= origin_h
     padding_w = numpy.zeros((origin_h, origin_w % patch_w, 3), numpy.uint8) + 255
     padding_h = numpy.zeros((origin_h % patch_h, origin_w + origin_w % patch_w, 3), numpy.uint8) + 255
     img_padding = numpy.vstack((numpy.hstack((img, padding_w)), padding_h))

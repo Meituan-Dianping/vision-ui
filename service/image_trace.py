@@ -48,6 +48,10 @@ def get_proposals(target_image, source_image_path, provider="ui-infer", patches_
         resolution = resolution_map[patches_resolution]
         source_img = cv2.imread(source_image_path)
         _h, _w, _ = source_img.shape
+        if w >= _w:
+            ratio = _w / w
+            target_image = cv2.resize(target_image, (0, 0), fx=ratio, fy=ratio)
+            h, w, _ = target_image.shape
         resolution[0] = round(resolution[0]/2, 1) if _w / w < 6 else resolution[0]
         resolution[1] = round(resolution[1]/2, 1) if _h / h < 6 else resolution[1]
         image_infer_result = get_image_patches(source_img, w, h, resolution[0], resolution[1])
