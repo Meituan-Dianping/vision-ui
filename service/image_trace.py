@@ -11,6 +11,7 @@ from PIL import Image
 from scipy import spatial
 from config import CLIP_MODEL_PATH, OP_NUM_THREADS
 from service.image_infer import get_ui_infer
+from dbnet_crnn.image_text import ImageText
 from service.image_utils import get_roi_image, img_show, get_image_patches, proposal_fine_tune, get_infer_area
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
 import onnxruntime
@@ -29,6 +30,26 @@ def cosine_similar(l1, l2):
 
 def _convert_image_to_rgb(image):
     return image.convert("RGB")
+
+
+def target_roi_text_diff_rate(target_img, source_img, proposals, tp):
+    image_text = ImageText()
+    count = 0
+    target_text = image_text.get_text(target_img, target_img.shape[0])
+    x1, y1, x2, y2 = list(map(int, proposals[tp[-1]]['elem_det_region']))
+    roi = get_roi_image(source_img, [[x1, y1], [x2, y1], [x2, y2], [x1, y2]])
+    source_text = image_text.get_text(roi, roi.shape[0])
+    if len(tp) > 1:
+        x1, y1, x2, y2 = list(map(int, proposals[tp[-2]]['elem_det_region']))
+        roi = get_roi_image(source_img, [[x1, y1], [x2, y1], [x2, y2], [x1, y2]])
+        source_text.extend(image_text.get_text(roi, roi.shape[0]))
+    for t in target_text:
+        for s in source_text:
+            if t['text'] in s['text'] or s['text'] in t['text']:
+                count = count + 1
+                break
+    rate = count / len(target_text) if len(target_text) > 0 else 0
+    return rate
 
 
 def get_proposals(target_image, source_image_path, provider="ui-infer", patches_resolution="normal"):
@@ -117,14 +138,15 @@ class ImageTrace(object):
             score = cosine_similar(target_image_features[0][0], source_image_feature) if image_alpha != 0 else 0
             img_text_score.append(score * image_alpha + probs[0][i] * text_alpha)
         max_confidence = round(np.max(img_text_score) / (image_alpha + text_alpha), 3)
-        # CLIP refer text in image
         target_image_infer = get_ui_infer(target_image, 0.1)
         target_area_rate = get_infer_area(target_image_infer) / (target_image.shape[0] * target_image.shape[1])
-        if target_area_rate < 0.1:
-            max_confidence = max_confidence - 0.06 * ((0.1 - target_area_rate)/0.1)
         score_norm = (img_text_score - np.min(img_text_score)) / (np.max(img_text_score) - np.min(img_text_score))
         top_k_ids = np.argsort(score_norm)[-top_k:]
         proposal_fine_tune(score_norm, proposals, 0.9)
+        # CLIP refer text in image
+        if target_area_rate < 0.1 and provider == 'patches':
+            text_rate = target_roi_text_diff_rate(target_image, source_image, proposals, np.argsort(score_norm)[:])
+            max_confidence = max_confidence - 0.06*((0.1-target_area_rate)/0.1) + 0.1*text_rate
         return top_k_ids, score_norm, proposals, max_confidence
 
     def get_trace_result(self, target_image_info, source_image_path, top_k=3, image_alpha=1.0,
