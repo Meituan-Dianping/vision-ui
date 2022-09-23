@@ -9,5 +9,5 @@ gunicorn==20.0.4
 onnxruntime==1.10.0
 pyclipper==1.2.0
 shapely==1.7.1
-protobuf==3.20.1
+protobuf==3.20.2
 git+https://github.com/openai/CLIP.git
