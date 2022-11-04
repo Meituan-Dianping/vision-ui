@@ -39,10 +39,6 @@ def target_roi_text_diff_rate(target_img, source_img, proposals, tp):
     x1, y1, x2, y2 = list(map(int, proposals[tp[-1]]['elem_det_region']))
     roi = get_roi_image(source_img, [[x1, y1], [x2, y1], [x2, y2], [x1, y2]])
     source_text = image_text.get_text(roi, roi.shape[0])
-    if len(tp) > 1:
-        x1, y1, x2, y2 = list(map(int, proposals[tp[-2]]['elem_det_region']))
-        roi = get_roi_image(source_img, [[x1, y1], [x2, y1], [x2, y2], [x1, y2]])
-        source_text.extend(image_text.get_text(roi, roi.shape[0]))
     for t in target_text:
         for s in source_text:
             if t['text'] in s['text'] or s['text'] in t['text']:
@@ -146,7 +142,7 @@ class ImageTrace(object):
         # CLIP refer text in image
         if target_area_rate < 0.1 and provider == 'patches':
             text_rate = target_roi_text_diff_rate(target_image, source_image, proposals, np.argsort(score_norm)[:])
-            max_confidence = max_confidence - 0.06*((0.1-target_area_rate)/0.1) + 0.1*text_rate
+            max_confidence = max_confidence - 0.08*(1-text_rate)
         return top_k_ids, score_norm, proposals, max_confidence
 
     def get_trace_result(self, target_image_info, source_image_path, top_k=3, image_alpha=1.0,
@@ -157,7 +153,7 @@ class ImageTrace(object):
         print(f"Max confidence:{max_confidence}")
         cls_ids = np.zeros(len(top_k_ids), dtype=int)
         boxes = [infer_result[i]['elem_det_region'] for i in top_k_ids]
-        scores = [float(scores[i]) for i in top_k_ids]
+        scores = [float(scores[i])*max_confidence for i in top_k_ids]
         image_show = img_show(cv2.imread(source_image_path), boxes, scores, cls_ids, conf=0.5, class_names=['T'])
         return image_show
 
