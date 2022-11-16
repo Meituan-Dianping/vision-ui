@@ -84,7 +84,12 @@ class ImageTrace(object):
         self.preprocess = self._get_preprocess()
         so = onnxruntime.SessionOptions()
         so.intra_op_num_threads = OP_NUM_THREADS
-        self.ort_sess = onnxruntime.InferenceSession(CLIP_MODEL_PATH, sess_options=so)
+        cuda_provider = 'CUDAExecutionProvider'
+        provider = cuda_provider if cuda_provider in onnxruntime.get_available_providers() and self.device == 'cuda' \
+            else 'CPUExecutionProvider'
+        print(f"ORT provider: {provider}")
+        self.ort_sess = onnxruntime.InferenceSession(CLIP_MODEL_PATH, sess_options=so,
+                                                     providers=[provider])
         print("Finish loading")
 
     def _get_preprocess(self):
@@ -107,16 +112,16 @@ class ImageTrace(object):
         target_image_desc = target_image_info.get('desc', '')
         source_image = cv2.imread(source_image_path)
         proposals = get_proposals(target_image, source_image_path, provider=provider)
-        text = clip.tokenize([target_image_desc]).to(self.device)
+        text = clip.tokenize([target_image_desc])
         # 提取检测目标
         for roi in proposals:
             x1, y1, x2, y2 = list(map(int, roi['elem_det_region']))
             roi = get_roi_image(source_image, [[x1, y1], [x2, y1], [x2, y2], [x1, y2]])
             img_pil = Image.fromarray(cv2.cvtColor(roi, cv2.COLOR_BGR2RGB))
-            roi_list.append(self.preprocess(img_pil).to(self.device))
+            roi_list.append(self.preprocess(img_pil))
         # 计算图像和文本匹配向量
         img_pil = Image.fromarray(cv2.cvtColor(target_image, cv2.COLOR_BGR2RGB))
-        target_image_input = self.preprocess(img_pil).unsqueeze(0).to(self.device).clone().detach()
+        target_image_input = self.preprocess(img_pil).unsqueeze(0).clone().detach()
         source_image_input = torch.tensor(np.stack(roi_list))
         _, logits_per_text,  source_image_features, = self.ort_sess.run(
             ["LOGITS_PER_IMAGE", "LOGITS_PER_TEXT", "onnx::Mul_3493"],

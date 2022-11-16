@@ -17,7 +17,8 @@ class ImageInfer(object):
         self.model_path = model_path
         so = onnxruntime.SessionOptions()
         so.intra_op_num_threads = OP_NUM_THREADS
-        self.model_session = onnxruntime.InferenceSession(self.model_path, sess_options=so)
+        self.model_session = onnxruntime.InferenceSession(self.model_path, sess_options=so,
+                                                          providers=['CPUExecutionProvider'])
 
     def ui_infer(self, image):
         origin_img = cv2.imread(image) if isinstance(image, str) else image
