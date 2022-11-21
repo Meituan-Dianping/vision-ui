@@ -35,10 +35,12 @@ def _convert_image_to_rgb(image):
 def target_roi_text_diff_rate(target_img, source_img, proposals, tp):
     image_text = ImageText()
     count = 0
-    target_text = image_text.get_text(target_img, target_img.shape[0])
+    target_l = target_img.shape[0] if target_img.shape[0] > target_img.shape[1] else target_img.shape[1]
+    target_text = image_text.get_text(target_img, target_l)
     x1, y1, x2, y2 = list(map(int, proposals[tp[-1]]['elem_det_region']))
     roi = get_roi_image(source_img, [[x1, y1], [x2, y1], [x2, y2], [x1, y2]])
-    source_text = image_text.get_text(roi, roi.shape[0])
+    roi_l = roi.shape[0] if roi.shape[0] > roi.shape[1] else roi.shape[1]
+    source_text = image_text.get_text(roi, roi_l)
     for t in target_text:
         for s in source_text:
             if t['text'] in s['text'] or s['text'] in t['text']:
