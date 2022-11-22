@@ -3,7 +3,7 @@ Flask-Cors
 scipy
 numpy
 opencv-python==4.5.2.52
-pillow==9.0.1
+pillow==9.3.0
 paddlepaddle==2.2.2
 gunicorn==20.0.4
 onnxruntime==1.10.0
