@@ -50,6 +50,18 @@ def target_roi_text_diff_rate(target_img, source_img, proposals, tp):
     return rate
 
 
+def filter_patches(target_image, patches):
+    result = []
+    target_h, target_w, _ = target_image.shape
+    for patch in patches:
+        x0, y0, x1, y1 = patch['elem_det_region']
+        patch_w = x1 - x0
+        patch_h = y1 - y0
+        if abs((patch_w / patch_h) - (target_w / target_h)) < 0.5:
+            result.append(patch)
+    return result
+
+
 def get_proposals(target_image, source_image_path, provider="ui-infer", patches_resolution="normal"):
     """
     选择区域来源，只需提供位置
@@ -61,7 +73,7 @@ def get_proposals(target_image, source_image_path, provider="ui-infer", patches_
     else:
         h, w, _ = target_image.shape
         resolution_map = {
-            'normal': [0.6, 0.6],
+            'normal': [0.6, 0.5],
             'high': [0.3, 0.3]
         }
         resolution = resolution_map[patches_resolution]
@@ -74,6 +86,7 @@ def get_proposals(target_image, source_image_path, provider="ui-infer", patches_
         resolution[0] = round(resolution[0]/2, 1) if _w / w < 6 else resolution[0]
         resolution[1] = round(resolution[1]/2, 1) if _h / h < 6 else resolution[1]
         image_infer_result = get_image_patches(source_img, w, h, resolution[0], resolution[1])
+        image_infer_result = filter_patches(target_image, image_infer_result)
     return image_infer_result
 
 
