@@ -62,7 +62,7 @@ def filter_patches(target_image, patches):
     return result
 
 
-def get_proposals(target_image, source_image_path, provider="ui-infer", patches_resolution="normal"):
+def get_proposals(target_image, source_image_path, provider="ui-infer"):
     """
     选择区域来源，只需提供位置
     """
@@ -72,20 +72,19 @@ def get_proposals(target_image, source_image_path, provider="ui-infer", patches_
     # patches，滑动窗口
     else:
         h, w, _ = target_image.shape
-        resolution_map = {
-            'normal': [0.6, 0.5],
-            'high': [0.3, 0.3]
-        }
-        resolution = resolution_map[patches_resolution]
-        source_img = cv2.imread(source_image_path)
-        _h, _w, _ = source_img.shape
-        if w >= _w:
-            ratio = _w / w
-            target_image = cv2.resize(target_image, (0, 0), fx=ratio, fy=ratio)
-            h, w, _ = target_image.shape
-        resolution[0] = round(resolution[0]/2, 1) if _w / w < 6 else resolution[0]
-        resolution[1] = round(resolution[1]/2, 1) if _h / h < 6 else resolution[1]
-        image_infer_result = get_image_patches(source_img, w, h, resolution[0], resolution[1])
+        resolution_map = {'M': [0.6, 0.6], 'N': [0.5, 0.5]}
+        image_infer_result = []
+        for k in resolution_map.keys():
+            resolution = resolution_map[k]
+            source_img = cv2.imread(source_image_path)
+            _h, _w, _ = source_img.shape
+            if w >= _w:
+                ratio = _w / w
+                target_image = cv2.resize(target_image, (0, 0), fx=ratio, fy=ratio)
+                h, w, _ = target_image.shape
+            resolution[0] = round(resolution[0]/2, 1) if _w / w < 6 else resolution[0]
+            resolution[1] = round(resolution[1]/2, 1) if _h / h < 6 else resolution[1]
+            image_infer_result.extend(get_image_patches(source_img, w, h, resolution[0], resolution[1]))
         image_infer_result = filter_patches(target_image, image_infer_result)
     return image_infer_result
 
